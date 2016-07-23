@@ -1,5 +1,5 @@
 {
-  "name": "databrowser",
+  "name": "dbbrowser",
   "version": "0.1.0",
   "description": "App for browsing database tables, views etc.",
   "main": "server.js",
