@@ -1,0 +1,22 @@
+<label class="inspector-title">{{ user }}: {{ name }}</label>
+<button class="load-sample">?</button>
+{{# isView }}
+<button class="show-sql">SQL</button>
+{{/ isView }}
+<button class="expander"></button>
+<table class="object-details">
+  <thead>
+    <tr>
+      <th class="detail-name">Name</th>
+      <th class="detail-type">Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{# columnsData }}
+    <tr>
+      <td class="detail-name">{{ COLUMN_NAME }}</td>
+      <td class="detail-type">{{ DATA_TYPE }} ({{ DATA_LENGTH }})</td>
+    </tr>
+    {{/ columnsData }}
+  </tbody>
+</table>

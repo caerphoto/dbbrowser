@@ -1,0 +1,21 @@
+{
+  "name": "databrowser",
+  "version": "0.1.0",
+  "description": "App for browsing database tables, views etc.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "database",
+    "oracle"
+  ],
+  "author": "Andy Farrell",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0",
+    "morgan": "^1.7.0",
+    "oracledb": "^1.10.1",
+    "pug": "^2.0.0-beta4"
+  }
+}

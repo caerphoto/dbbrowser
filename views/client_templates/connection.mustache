@@ -1,0 +1,26 @@
+<label class="connection-name expander">{{ user }}</label>
+<div class="objects-list-wrapper">
+  <label class="object-list-label tables expander collapsed">Tables ({{ tables.length }})</label>
+  <ul class="connection-objects tables">
+    {{# tables }}
+      <li><a href="#{{ . }}" data-type="table">{{ . }}</a></li>
+    {{/ tables }}
+  </ul>
+
+  <label class="object-list-label views expander collapsed">Views ({{ views.length }})</label>
+  <ul class="connection-objects views">
+    {{# views }}
+      <li><a href="#{{ . }}" data-type="view">{{ . }}</a></li>
+    {{/ views }}
+  </ul>
+
+  <label class="object-list-label synonyms expander collapsed">Synonyms ({{ synonyms.length }})</label>
+  <ul class="connection-objects synonyms">
+    {{# synonyms }}
+    <li><a href="#{{ TABLE_NAME }}"
+      {{# broken }}
+      class="broken {{# cyclic }}cyclic{{/ cyclic }}"
+      {{/ broken }} data-type="synonym" data-target="{{ TABLE_NAME }}">{{ SYNONYM_NAME }}</a></li>
+    {{/ synonyms }}
+  </ul>
+</div>

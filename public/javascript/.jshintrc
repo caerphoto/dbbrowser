@@ -1,0 +1,7 @@
+{
+    "node": false,
+    "esnext": false,
+    "globalstrict": true,
+    "browser": true
+}
+

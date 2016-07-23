@@ -1,0 +1,45 @@
+doctype html
+html
+  head
+    title Database Browser
+    link(rel="shortcut icon", type="image/png", href="/assets/media/favicon.png")
+    link(href="https://fonts.googleapis.com/css?family=Open+Sans",
+      rel="stylesheet" type="text/css")
+    link(rel="stylesheet", href="assets/css/main.css")
+
+  body
+    h1.app-name Database Browser
+
+    #main-wrapper
+      section#connections
+        form#connection-list-controls
+          button#add-connection + Add Connection
+          input#connection-list-auto-hide(type="checkbox")
+          label(for="connection-list-auto-hide") Auto-hide
+
+          label(for="object-list-filter") Filter objects
+          input#object-list-filter(type="search")
+        #connection-list-wrapper
+          ul#connection-list
+
+      div#connection-sizer.pane-sizer.vertical
+
+      section#object-inspectors
+
+      div#object-inspectors-sizer.pane-sizer.horizontal
+
+      section#sql-pane
+        ul#sql-pane-tabs
+
+    footer Some statusbar text here
+
+    script#template-connection(type="text/mustache")
+      include ./client_templates/connection.mustache
+    script#template-table-inspector(type="text/mustache")
+      include ./client_templates/inspector_table.mustache
+    script#template-sql-pane-tab(type="text/mustache")
+      include ./client_templates/sql_pane_tab.mustache
+
+    script(src="/assets/javascript/mustache.min.js")
+    script(src="/assets/javascript/main.js")
+
