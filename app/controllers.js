@@ -13,7 +13,7 @@ const QUERIES = {
     getViews: 'select view_name from user_views order by view_name',
     getSynonyms: 'select synonym_name, table_name from user_synonyms order by synonym_name',
     getDataSample: 'select * from :object where rownum < 50',
-    describe: 'select column_id, column_name, data_type, data_length from user_tab_columns where table_name = :objectName order bt column_id'
+    describe: 'select column_id, column_name, data_type, data_length from user_tab_columns where table_name = :objectName order by column_id'
 };
 
 
