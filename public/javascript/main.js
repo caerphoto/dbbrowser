@@ -1,16 +1,19 @@
 /*global Mustache */
 'use strict';
 
-var elAddConnection = document.getElementById('add-connection');
-var elConnectionForm = document.getElementById('connection-list-controls');
-var elConnectionList = document.getElementById('connection-list');
-var elObjectInspectors = document.getElementById('object-inspectors');
-var elSQLPane = document.querySelector('#sql-pane');
-var elCodeTabs = document.querySelector('#sql-pane-tabs');
+var D = document;
+var elWorkspace = D.querySelector('#main-wrapper');
+var elAddConnection = D.querySelector('#add-connection');
+var elConnectionForm = D.querySelector('#connection-list-controls');
+var elConnectionList = D.querySelector('#connection-list');
+var elObjectInspectors = D.querySelector('#object-inspectors');
+var elSQLPane = D.querySelector('#sql-pane');
+var elCodeTabs = D.querySelector('#sql-pane-tabs');
+var elSizerH = D.querySelector('#object-inspectors-sizer');
 var templates = {
-    connection: document.querySelector('#template-connection').innerHTML,
-    tableInspector: document.querySelector('#template-table-inspector').innerHTML,
-    codeTab: document.querySelector('#template-sql-pane-tab').innerHTML
+    connection: D.querySelector('#template-connection').innerHTML,
+    tableInspector: D.querySelector('#template-table-inspector').innerHTML,
+    codeTab: D.querySelector('#template-sql-pane-tab').innerHTML
 };
 
 var connections = {};
@@ -24,6 +27,8 @@ var dragData = {
 var highestZIndex = 0;
 
 var inspectorPaneRect = elObjectInspectors.getBoundingClientRect();
+var workspaceRect = elWorkspace.getBoundingClientRect();
+var sizerSize = elSizerH.offsetHeight;
 
 function getObjectFromSynonym(objectName, objects) {
     var matchingObjectName;
@@ -312,10 +317,12 @@ function showSynonymTarget(evt) {
         return window.alert('Synonym refers to itself.');
     }
 
-    var targetLink = connections[user].el.querySelector('[href="#' + synonymTarget.name + '"]');
+    var targetLink = connections[user].el.querySelector('[href="#' +
+        synonymTarget.name + '"]');
 
     loadObjectInspector({ target: targetLink });
-    connections[user].el.querySelector('.object-list-label.' + synonymTarget.type + 's').classList.remove('collapsed');
+    connections[user].el.querySelector('.object-list-label.' +
+        synonymTarget.type + 's').classList.remove('collapsed');
     targetLink.classList.add('pinged');
     el.classList.add('has-inspector');
     targetLink.scrollIntoView();
@@ -327,8 +334,8 @@ function showSynonymTarget(evt) {
 }
 
 function startDragging(evt) {
-    var el;
-    if (!evt.target || evt.target.className !== 'inspector-title') {
+    var el = evt.target;
+    if (!el || !/inspector-title|pane-sizer/.test(el.className)) {
         return;
     }
 
@@ -337,24 +344,43 @@ function startDragging(evt) {
         return;
     }
 
-    el = evt.target.parentNode;
-
     evt.preventDefault();
-    dragData.el = el;
-    dragData.offsetX = evt.offsetX;
-    dragData.offsetY = evt.offsetY - elObjectInspectors.scrollTop;
 
-    bringInspectorToFront(el);
+    dragData.offsetX = evt.offsetX;
+    if (evt.target === elSizerH) {
+        dragData.el = el;
+        dragData.offsetY = evt.offsetY;
+    } else {
+        dragData.el = el.parentNode;
+        dragData.offsetY = evt.offsetY - elObjectInspectors.scrollTop;
+        bringInspectorToFront(el.parentNode);
+    }
 }
 
-function dragInspector(evt) {
+function dragElement(evt) {
+    var parentRect;
+    var newTop;
+
     if (!dragData.el) {
         return;
     }
 
+    if (dragData.el === elSizerH) {
+        parentRect = workspaceRect;
+    } else {
+        parentRect = inspectorPaneRect;
+    }
+
     evt.preventDefault();
-    dragData.el.style.left = (evt.clientX - dragData.offsetX - inspectorPaneRect.left) + 'px';
-    dragData.el.style.top = (evt.clientY - dragData.offsetY - inspectorPaneRect.top) + 'px';
+    newTop = evt.clientY - dragData.offsetY - parentRect.top;
+    dragData.el.style.top = newTop + 'px';
+    if (dragData.el === elSizerH) {
+        elObjectInspectors.style.height = newTop + 'px';
+        elSQLPane.style.top = (newTop + sizerSize) + 'px';
+    } else {
+        dragData.el.style.left = (evt.clientX - dragData.offsetX -
+            parentRect.left) + 'px';
+    }
 }
 
 function stopDragging(evt) {
@@ -406,7 +432,11 @@ elConnectionList.addEventListener('click', function (evt) {
 });
 
 elObjectInspectors.addEventListener('mousedown', startDragging);
-elObjectInspectors.addEventListener('mousemove', dragInspector);
-document.body.addEventListener('mouseup', stopDragging);
+elObjectInspectors.addEventListener('mousemove', dragElement);
+D.body.addEventListener('mouseup', stopDragging);
 
 elCodeTabs.addEventListener('click', activateTab);
+
+elSizerH.addEventListener('mousedown', startDragging);
+elWorkspace.addEventListener('mousemove', dragElement);
+D.body.addEventListener('mouseup', stopDragging);
