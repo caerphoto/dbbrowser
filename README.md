@@ -6,6 +6,9 @@ views and synonyms for multiple users, and get column details on tables/views.
 You can also execute arbitrary SQL and the results are shown similarly to
 table/view column info.
 
+I made this because Oracle SQL Developer is a bit heavyweight and makes my
+computer sad.
+
 ## Installation and running
 
 To install:
