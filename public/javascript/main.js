@@ -199,11 +199,7 @@ elAddConnection.addEventListener('click', function () {
             el: elConnection,
             objects: objects,
             codeTab: createCodeTab(user),
-            inspectors: {
-                tables: {},
-                views: {},
-                synonyms: {}
-            }
+            inspectors: {}
         };
 
         activateTab({ target: connections[user].codeTab.querySelector('a') });
@@ -222,11 +218,26 @@ function inArray(str, arr) {
 }
 
 function toggleLabelCollapsed(evt) {
-    var classes = evt.target.className.split(' ');
-    if (!inArray('expander', classes)) {
+    if (!/expander/.test(evt.target.className)) {
         return;
     }
     evt.target.classList.toggle('collapsed');
+}
+
+function closeInspector(evt) {
+    var el = evt.target;
+    var elLink;
+    if (!/close-inspector/.test(el.className)) {
+        return;
+    }
+
+    elLink = connections[el.dataset.user].inspectors[el.dataset.name].link;
+    if (elLink) {
+        elLink.classList.remove('has-inspector');
+    }
+
+    delete connections[el.dataset.user].inspectors[el.dataset.name];
+    elObjectInspectors.removeChild(el.parentNode);
 }
 
 function getUserFromElement(el) {
@@ -257,7 +268,7 @@ function bringInspectorToFront(el, ping) {
 }
 
 function getInspector(user, type, name) {
-    return connections[user].inspectors[type + 's'][name];
+    return connections[user].inspectors[name];
 }
 
 function createInspector(objectData) {
@@ -318,9 +329,10 @@ function loadObjectInspector(evt) {
         elInspector = createInspector(objectData);
         elObjectInspectors.appendChild(elInspector);
 
-        connections[user].inspectors[objectType + 's'][objectName] = {
+        connections[user].inspectors[objectName] = {
             el: elInspector,
-            object: object
+            object: object,
+            link: el
         };
 
         el.classList.add('has-inspector');
@@ -540,6 +552,9 @@ function executeSQL(evt) {
                 return {
                     rowData: objectData.columns.map(function (columnName) {
                         var value = rowData[columnName];
+                        if (typeof value === 'object') {
+                            value = JSON.stringify(value);
+                        }
                         return {
                             value: escapeForHTML(value) || NULL_TEXT,
                             type: typeof value
@@ -549,6 +564,10 @@ function executeSQL(evt) {
             });
             elInspector = createInspector(objectData);
             elObjectInspectors.appendChild(elInspector);
+            connections[user].inspectors[objectData.name] = {
+                el: elInspector,
+                object: objectData
+            };
         } else {
             window.alert('Error:\n\n' + xhr.responseText);
         }
@@ -562,6 +581,7 @@ function executeSQL(evt) {
 
 elConnectionList.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', toggleLabelCollapsed);
+elObjectInspectors.addEventListener('click', closeInspector);
 
 elConnectionList.addEventListener('click', function (evt) {
     var el = evt.target;

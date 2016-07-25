@@ -293,7 +293,7 @@ label + input {
 
 .object-inspector .inspector-title {
     display: block;
-    padding: 0.5em 2.5em;
+    padding: 0.5em 4.5em;
     cursor: move;
     text-align: center;
 }
@@ -311,24 +311,29 @@ label + input {
     background-color: #ffd320;
 }
 
-.object-inspector .expander {
+.object-inspector button {
     display: block;
     position: absolute;
     top: 0.2em;
+}
+
+.object-inspector .expander {
+    left: 2.3em;
+}
+
+.object-inspector .close-inspector {
     left: 0.2em;
 }
 
 .object-inspector .load-sample {
     position: absolute;
-    top: 0.2em;
     right: 0.2em;
+    display: none !important;
 }
 
-.object-inspector .show-sql {
-    position: absolute;
-    top: 0.2em;
+.object-inspector.view .show-sql {
     right: 2em;
-    display: none;
+    display: none !important;
 }
 
 .object-inspector .inspector-user {
