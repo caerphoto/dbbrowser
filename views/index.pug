@@ -25,11 +25,16 @@ html
       div#connection-sizer.pane-sizer.vertical
 
       section#object-inspectors
+        div#debug
 
       div#object-inspectors-sizer.pane-sizer.horizontal
 
       section#sql-pane
         ul#sql-pane-tabs
+          li#debug-tab
+            a.active(href="#sql-debug") Debug
+
+        textarea#sql-debug.active
 
     footer Some statusbar text here
 
@@ -37,6 +42,8 @@ html
       include ./client_templates/connection.mustache
     script#template-table-inspector(type="text/mustache")
       include ./client_templates/inspector_table.mustache
+    script#template-result-inspector(type="text/mustache")
+      include ./client_templates/inspector_result.mustache
     script#template-sql-pane-tab(type="text/mustache")
       include ./client_templates/sql_pane_tab.mustache
 

@@ -26,6 +26,24 @@ a {
     text-decoration: none;
 }
 
+#debug {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    width: 30em;
+    border: 1px solid #c99;
+    background-color: #fff4f4;
+    padding: 0.5em;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+#debug,
+#debug-tab,
+#sql-debug {
+    display: none !important;
+}
+
 .app-name {
     position: fixed;
     top: 0;
@@ -289,6 +307,9 @@ label + input {
     padding-right: 5em;
 }
 
+.object-inspector.result .inspector-title {
+    background-color: #ffd320;
+}
 
 .object-inspector .expander {
     display: block;
@@ -307,6 +328,7 @@ label + input {
     position: absolute;
     top: 0.2em;
     right: 2em;
+    display: none;
 }
 
 .object-inspector .inspector-user {
@@ -320,14 +342,11 @@ label + input {
     text-transform: lowercase;
 }
 
-.object-details thead {
-    display: none;
-}
-
 .object-details th {
     font-weight: normal;
     text-align: left;
     background-color: #eee;
+    border-bottom: 1px solid #aaa;
 }
 
 .object-details tr > * {
@@ -339,8 +358,12 @@ label + input {
     background-color: #f4f4f4;
 }
 
-.object-details .numeric {
+.object-details .number {
     text-align: right;
+}
+
+.object-details .null {
+    opacity: 0.4;
 }
 
 /* ================= SQL Pane =================== */

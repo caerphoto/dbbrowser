@@ -1,7 +1,7 @@
 <label class="inspector-title">{{ user }}: {{ name }}</label>
 <button class="load-sample">?</button>
 {{# isView }}
-<button class="show-sql">SQL</button>
+<button class="show-sql" data-user="{{ user }}" data-name="{{ name }}">SQL</button>
 {{/ isView }}
 <button class="expander"></button>
 <table class="object-details">

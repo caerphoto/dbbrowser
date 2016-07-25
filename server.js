@@ -3,6 +3,7 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 
 const controllers = require('./app/controllers');
 
@@ -18,12 +19,13 @@ if (process.env.NODE_ENV === 'production') {
     app.use(morgan('dev'));
 }
 
+
 app.get(controllers.ROOT, controllers.index);
 app.get(controllers.USER_OBJECTS, controllers.getObjects);
-app.get(controllers.OBJECT_INFO, controllers.getObjectInfo);
-app.post(controllers.POST_SQL, controllers.postSQL);
-
 app.use('/assets', express['static'](__dirname + '/public'));
+app.get(controllers.OBJECT_INFO, controllers.getObjectInfo);
+app.use(bodyParser.text());
+app.post(controllers.POST_SQL, controllers.postSQL);
 
 // Handle 404s - this only gets called if none of the routes above send a
 // response.

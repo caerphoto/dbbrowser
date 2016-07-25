@@ -10,9 +10,12 @@ var elObjectInspectors = D.querySelector('#object-inspectors');
 var elSQLPane = D.querySelector('#sql-pane');
 var elCodeTabs = D.querySelector('#sql-pane-tabs');
 var elSizerH = D.querySelector('#object-inspectors-sizer');
+var elDebug = D.querySelector('#debug');
+
 var templates = {
     connection: D.querySelector('#template-connection').innerHTML,
     tableInspector: D.querySelector('#template-table-inspector').innerHTML,
+    resultInspector: D.querySelector('#template-result-inspector').innerHTML,
     codeTab: D.querySelector('#template-sql-pane-tab').innerHTML
 };
 
@@ -25,10 +28,27 @@ var dragData = {
 };
 
 var highestZIndex = 0;
-
 var inspectorPaneRect = elObjectInspectors.getBoundingClientRect();
 var workspaceRect = elWorkspace.getBoundingClientRect();
 var sizerSize = elSizerH.offsetHeight;
+
+var NULL_TEXT = '<span class="null">(null)</span>';
+
+function escapeForHTML(text) {
+    if (!text || typeof text !== 'string') {
+        return text;
+    }
+
+    return text.replace(/&<>"'/, function (match) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[match] || match;
+    });
+}
 
 function getObjectFromSynonym(objectName, objects) {
     var matchingObjectName;
@@ -102,39 +122,40 @@ function fetchObjects(user, callback) {
     var path = '/' + user + '/objects';
     var xhr = new XMLHttpRequest();
 
-    xhr.addEventListener("load", function () {
+    xhr.addEventListener('load', function () {
         var objects;
 
-        if (xhr.status >= 400) {
-            window.console.error('Error', xhr.status);
-        } else {
+        if (xhr.status < 400) {
             objects = JSON.parse(xhr.responseText);
             objects.user = user;
             flagBrokenSynonyms(objects);
             callback(objects);
+        } else {
+            window.alert('Error:\n\n' + xhr.responseText);
         }
     }, false);
 
-    xhr.open("GET", path, true);
+    xhr.open('GET', path, true);
     xhr.send();
 }
 
-function fetchObject(user, objectName, callback) {
-    var path = '/' + user + '/object/' + objectName;
+function fetchObject(options, callback) {
+    var infoType = options.infoType || 'object';
+    var path = '/' + [options.user, infoType, options.objectName].join('/');
     var xhr = new XMLHttpRequest();
 
-    xhr.addEventListener("load", function () {
+    xhr.addEventListener('load', function () {
         var object;
 
-        if (xhr.status >= 400) {
-            window.console.error('Error', xhr.status);
-        } else {
+        if (xhr.status < 400) {
             object = JSON.parse(xhr.responseText);
             callback(object);
+        } else {
+            window.alert('Error:\n\n' + xhr.responseText);
         }
     }, false);
 
-    xhr.open("GET", path, true);
+    xhr.open('GET', path, true);
     xhr.send();
 }
 
@@ -241,10 +262,13 @@ function getInspector(user, type, name) {
 
 function createInspector(objectData) {
     var elInspector = document.createElement('div');
-    var inspectorType = objectData.type === 'synonym' ? objectData.type : 'table';
-    var template = templates[inspectorType + 'Inspector'];
+    var template = objectData.type === 'result' ?
+        templates.resultInspector :
+        templates.tableInspector;
 
     objectData.isView = objectData.type === 'view';
+    objectData.isResult = objectData.type === 'result';
+
     elInspector.className = 'object-inspector ' + objectData.type;
     elInspector.id = ['inspector', objectData.user, objectData.name].join('-');
     elInspector.style.zIndex = highestZIndex + 1;
@@ -282,7 +306,7 @@ function loadObjectInspector(evt) {
         return;
     }
 
-    fetchObject(user, objectName, function (object) {
+    fetchObject({ user: user, objectName: objectName }, function (object) {
         var elInspector;
         var objectData = {
             name: objectName,
@@ -414,6 +438,128 @@ function activateTab(evt) {
     editor.classList.add('active');
 }
 
+function loadSQLForView(evt) {
+    var el = evt.target;
+    if (!el || !/show-sql/.test(el.className)) {
+        return;
+    }
+
+    fetchObject({
+        user: el.dataset.user,
+        infoType: 'viewText',
+        objectName: el.dataset.name
+    }, function (objectData) {
+        var editorId = connections[el.dataset.user].codeTab;
+    });
+}
+
+function getCurrentSQLStatement(editor) {
+    var editorContent;
+    var statementStart, statementEnd;
+    var inQuote = false;
+
+    editorContent = editor.value.split('');
+
+    statementEnd = editor.selectionStart;
+    statementStart = statementEnd - 1;
+    if (editorContent[statementStart] === ';') {
+        statementStart -= 1;
+    }
+
+    while (statementEnd <= editorContent.length) {
+        if (editorContent[statementEnd] === "'") {
+            inQuote = !inQuote;
+        }
+        if (editorContent[statementEnd] === ';' && !inQuote) {
+            break;
+        }
+        statementEnd += 1;
+    }
+
+    inQuote = false;
+    while (statementStart >= 0) {
+        if (editorContent[statementStart] === "'") {
+            inQuote = !inQuote;
+        }
+        if (editorContent[statementStart] === ';' && !inQuote) {
+            break;
+        }
+        statementStart -= 1;
+    }
+
+    statementStart += 1;
+
+    return editorContent.slice(statementStart, statementEnd)
+        .join('')
+        .replace(/^\s*/, '')
+        .replace(/;?\s*$/, '');
+}
+
+function executeSQL(evt) {
+    var editor = evt.target;
+    var sql;
+    var user;
+    var path;
+    var xhr;
+
+    if (!editor || editor.nodeName !== 'TEXTAREA') {
+        return;
+    }
+
+    if (evt.key !== 'Enter' || !evt.ctrlKey) {
+        return;
+    }
+
+    evt.preventDefault();
+
+    sql = getCurrentSQLStatement(editor);
+    if (sql === '') {
+        return;
+    }
+
+    user = editor.id.replace(/^sql-/, '');
+    path = '/' + user + '/sql';
+    xhr = new XMLHttpRequest();
+
+    xhr.addEventListener('load', function () {
+        var result;
+        var objectData = {
+            name: 'sql-result-' + highestZIndex,
+            user: user,
+            type: 'result',
+            sql: sql
+        };
+        var elInspector;
+
+        if (xhr.status < 400) {
+            result = JSON.parse(xhr.response);
+            objectData.columns = result.metaData.map(function (columnData) {
+                return columnData.name;
+            });
+            objectData.rows = result.rows.map(function (rowData) {
+                return {
+                    rowData: objectData.columns.map(function (columnName) {
+                        var value = rowData[columnName];
+                        return {
+                            value: escapeForHTML(value) || NULL_TEXT,
+                            type: typeof value
+                        };
+                    })
+                };
+            });
+            elInspector = createInspector(objectData);
+            elObjectInspectors.appendChild(elInspector);
+        } else {
+            window.alert('Error:\n\n' + xhr.responseText);
+        }
+    });
+
+    xhr.open('POST', path, true);
+    xhr.send(sql);
+
+    return false;
+}
+
 elConnectionList.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', toggleLabelCollapsed);
 
@@ -434,9 +580,12 @@ elConnectionList.addEventListener('click', function (evt) {
 elObjectInspectors.addEventListener('mousedown', startDragging);
 elObjectInspectors.addEventListener('mousemove', dragElement);
 D.body.addEventListener('mouseup', stopDragging);
+elObjectInspectors.addEventListener('click', loadSQLForView);
 
 elCodeTabs.addEventListener('click', activateTab);
 
 elSizerH.addEventListener('mousedown', startDragging);
 elWorkspace.addEventListener('mousemove', dragElement);
 D.body.addEventListener('mouseup', stopDragging);
+
+elSQLPane.addEventListener('keydown', executeSQL);

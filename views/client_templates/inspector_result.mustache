@@ -1,0 +1,20 @@
+<label class="inspector-title" title="{{ sql }}">{{ user }}: &lt;query result&gt;</label>
+<button class="expander"></button>
+<table class="object-details">
+  <thead>
+    <tr>
+      {{# columns }}
+        <th class="detail-col">{{ . }}</th>
+      {{/ columns }}
+    </tr>
+  </thead>
+  <tbody>
+    {{# rows }}
+    <tr>
+      {{# rowData }}
+        <td class="detail-rowdata {{ type }}">{{{ value }}}</td>
+      {{/ rowData }}
+    </tr>
+    {{/ rows }}
+  </tbody>
+</table>

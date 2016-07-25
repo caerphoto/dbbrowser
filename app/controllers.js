@@ -13,14 +13,15 @@ const QUERIES = {
     getViews: 'select view_name from user_views order by view_name',
     getSynonyms: 'select synonym_name, table_name from user_synonyms order by synonym_name',
     getDataSample: 'select * from :object where rownum < 50',
-    describe: 'select column_id, column_name, data_type, data_length from user_tab_columns where table_name = :objectName order by column_id'
+    describe: 'select column_id, column_name, data_type, data_length from user_tab_columns where table_name = :objectName order by column_id',
+    getViewText: 'select text from user_views where view_name = :objectName'
 };
 
 
 exports.ROOT = '/';
 exports.USER_OBJECTS = '/:user/objects';
 exports.POST_SQL = '/:user/sql';
-exports.OBJECT_INFO = '/:user/object/:objectName';
+exports.OBJECT_INFO = '/:user/:infoType/:objectName';
 
 exports.index = function (req, res) {
     res.render('index');
@@ -97,8 +98,27 @@ exports.getObjects = function (req, res) {
 
 };
 
-exports.getObjectInfo = function (req, res) {
-    let query = QUERIES.describe;
+exports.getObjectInfo = function (req, res, next) {
+    let query;
+    let queryParams = {};
+
+    switch (req.params.infoType) {
+    case 'object':
+        query = QUERIES.describe;
+        break;
+    case 'viewText':
+        query = QUERIES.getViewText;
+        break;
+    case 'sql':
+        query = req.body;
+        break;
+    default:
+        return next();
+    }
+
+    if (req.params.infoType !== 'sql') {
+        queryParams = { objectName: req.params.objectName };
+    }
 
     dbParams.user = req.params.user;
     db.getConnection(dbParams, function (err, connection) {
@@ -107,18 +127,23 @@ exports.getObjectInfo = function (req, res) {
             return res.status(500).send(err.message);
         }
 
-        connection.execute(query, { objectName: req.params.objectName }, function (err, result) {
+        connection.execute(query, queryParams , function (err, result) {
             if (err) {
                 console.error(err.message);
                 return res.status(500).send(err.message);
             }
 
-            res.json(result.rows);
+            if (req.params.infoType === 'sql') {
+                res.json(result);
+            } else {
+                res.json(result.rows);
+            }
         });
     });
 
 };
 
-exports.postSQL = function (req, res) {
-    res.sendStatus(501);
+exports.postSQL = function (req, res, next) {
+    req.params.infoType = 'sql';
+    exports.getObjectInfo(req, res, next);
 };
