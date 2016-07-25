@@ -1,14 +1,14 @@
 doctype html
 html
   head
-    title Database Browser
+    title Oracle Database Browser
     link(rel="shortcut icon", type="image/png", href="/assets/media/favicon.png")
     link(href="https://fonts.googleapis.com/css?family=Open+Sans",
       rel="stylesheet" type="text/css")
     link(rel="stylesheet", href="assets/css/main.css")
 
   body
-    h1.app-name Database Browser
+    h1.app-name Oracle Database Browser
 
     #main-wrapper
       section#connections
@@ -36,7 +36,7 @@ html
 
         textarea#sql-debug.active
 
-    footer Some statusbar text here
+    footer.status-bar Click 'Add Connection' to get started.
 
     script#template-connection(type="text/mustache")
       include ./client_templates/connection.mustache

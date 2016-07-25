@@ -107,17 +107,20 @@ button:active {
     bottom: 2em;
 }
 
-footer {
+footer.status-bar {
     position: fixed;
-    height: 2em;
+    height: 2rem;
     left: 0;
     right: 0;
     bottom: 0;
+    font-size: 90%;
     background-color: #ddd;
-    line-height: 2em;
-    border-top: 1px solid #ccc;
+    line-height: 2rem;
+    border-top: 1px solid #aaa;
     box-sizing: border-box;
     padding-left: 0.5em;
+
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 .pane-sizer,
@@ -134,10 +137,11 @@ footer {
 
 .pane-sizer.vertical {
     top: 0;
-    left: 20em;
-    width: 0.5em;
+    left: 20.4em;
+    width: 0.1em;
     bottom: 0;
-    cursor: col-resize;
+    /* disabling this until it actually allows resizing */
+    /*cursor: col-resize;*/
 }
 
 .pane-sizer.horizontal {
@@ -151,7 +155,7 @@ footer {
 #connections {
     top: 0;
     left: 0;
-    width: 20em;
+    width: 20.4em;
     bottom: 0;
 }
 
@@ -397,7 +401,14 @@ label + input {
 }
 
 .object-details .detail-rowindex {
-    width: 3em;
+    max-width: 3em;
+    opacity: 0.5;
+    border-right: 1px solid #e4e4e4;
+    padding-right: 0.5em;
+}
+
+.object-details tbody tr:nth-child(odd) .detail-rowindex {
+    border-right-color: #f0f0f0;
 }
 
 .object-inspector .query-info {
