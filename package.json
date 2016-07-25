@@ -1,7 +1,7 @@
 {
   "name": "dbbrowser",
-  "version": "0.1.0",
-  "description": "App for browsing database tables, views etc.",
+  "version": "0.4.0",
+  "description": "App for browsing Oracle database tables, views etc.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

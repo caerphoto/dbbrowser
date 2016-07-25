@@ -4,7 +4,7 @@ const db = require('oracledb');
 
 const dbParams = {
     password: '*',
-    connectString: process.env.DB_NAME
+    connectString: process.env.DB_CONNECTION
 };
 
 db.outFormat = db.OBJECT;
