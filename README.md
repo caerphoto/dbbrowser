@@ -11,6 +11,9 @@ computer sad.
 
 ## Installation and running
 
+You will need Node (obviously) and the stuff listed in the Installation section
+of the [node-oracledb](https://github.com/oracle/node-oracledb) README.
+
 To install:
 
 ```
