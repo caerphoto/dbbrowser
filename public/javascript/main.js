@@ -562,7 +562,7 @@ function executeSQL(evt) {
                     rowIndex: rowIndex + 1,
                     rowData: objectData.columns.map(function (columnName) {
                         var value = rowData[columnName];
-                        if (typeof value === 'object') {
+                        if (typeof value === 'object' && value !== null) {
                             value = JSON.stringify(value);
                         }
                         return {
