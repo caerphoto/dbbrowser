@@ -465,6 +465,15 @@ function loadSQLForView(evt) {
     });
 }
 
+function toggleSQL(evt) {
+    var el = evt.target;
+    if (!el || !/sql-toggle/.test(el.className) || el.nodeName !== 'INPUT') {
+        return;
+    }
+
+    el.parentNode.classList.toggle('show-sql');
+}
+
 function getCurrentSQLStatement(editor) {
     var editorContent;
     var statementStart, statementEnd;
@@ -548,8 +557,9 @@ function executeSQL(evt) {
             objectData.columns = result.metaData.map(function (columnData) {
                 return columnData.name;
             });
-            objectData.rows = result.rows.map(function (rowData) {
+            objectData.rows = result.rows.map(function (rowData, rowIndex) {
                 return {
+                    rowIndex: rowIndex + 1,
                     rowData: objectData.columns.map(function (columnName) {
                         var value = rowData[columnName];
                         if (typeof value === 'object') {
@@ -601,6 +611,7 @@ elObjectInspectors.addEventListener('mousedown', startDragging);
 elObjectInspectors.addEventListener('mousemove', dragElement);
 D.body.addEventListener('mouseup', stopDragging);
 elObjectInspectors.addEventListener('click', loadSQLForView);
+elObjectInspectors.addEventListener('change', toggleSQL);
 
 elCodeTabs.addEventListener('click', activateTab);
 

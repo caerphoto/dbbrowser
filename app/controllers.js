@@ -8,6 +8,8 @@ const dbParams = {
 };
 
 db.outFormat = db.OBJECT;
+db.maxRows = 1000;
+
 const QUERIES = {
     getTables: 'select table_name from user_tables order by table_name',
     getViews: 'select view_name from user_views order by view_name',

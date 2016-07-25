@@ -1,9 +1,14 @@
-<label class="inspector-title" title="{{ sql }}">{{ user }}: &lt;query result&gt;</label>
+<label class="inspector-title">{{ user }}: query result</label>
+<div class="sql-controls">
+  <input type="checkbox" id="sql-toggle-{{user}}-{{name}}" class="sql-toggle">
+  <label for="sql-toggle-{{user}}-{{name}}" title="Show the SQL that generated this query">SQL</label>
+</div>
 <button class="close-inspector" data-user="{{ user }}" data-name="{{ name }}">&times;</button>
 <button class="expander"></button>
 <table class="object-details">
   <thead>
     <tr>
+      <th class="detail-rowindex number">#</td>
       {{# columns }}
         <th class="detail-col">{{ . }}</th>
       {{/ columns }}
@@ -12,6 +17,7 @@
   <tbody>
     {{# rows }}
     <tr>
+      <td class="detail-rowindex number">{{ rowIndex }}</td>
       {{# rowData }}
         <td class="detail-rowdata {{ type }}">{{{ value }}}</td>
       {{/ rowData }}
@@ -19,3 +25,4 @@
     {{/ rows }}
   </tbody>
 </table>
+<aside class="query-info"><code class="sql">{{ sql }}</code></aside>

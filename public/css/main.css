@@ -6,6 +6,8 @@ p {
     padding: 0;
     margin: 0;
     list-style: none;
+    font: inherit;
+    font-size: 100%;
 }
 
 table {
@@ -57,6 +59,7 @@ a {
     box-sizing: border-box;
     background-color: #ddd;
     line-height: 1.5;
+    font-size: 2em;
 }
 
 .expander {
@@ -175,7 +178,7 @@ footer {
     overflow: hidden;
     border-bottom: 1px solid #ccc;
     padding: 0.5em;
-    height: 6em;
+    height: 3em;
 }
 
 #connection-list-controls input,
@@ -207,7 +210,7 @@ label + input {
 
 #connection-list-wrapper {
     position: absolute;
-    top: 6em;
+    top: 3em;
     bottom: 0;
     left: 0;
     right: 0;
@@ -279,11 +282,14 @@ label + input {
 .object-inspector {
     border: 1px solid #aaa;
     position: absolute;
+    box-sizing: border-box;
     background-color: #fff;
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
     top: 2em;
     left: 2em;
     transition: border-color 0.4s ease, color 0.4s ease;
+    border-radius: 2px;
+    overflow: visible;
 }
 
 .object-inspector.pinged {
@@ -293,9 +299,10 @@ label + input {
 
 .object-inspector .inspector-title {
     display: block;
-    padding: 0.5em 4.5em;
+    padding: 0 0.5em 0 4.2em;
+    line-height: 2;
     cursor: move;
-    text-align: center;
+    text-align: left;
 }
 
 .object-inspector.table .inspector-title {
@@ -309,8 +316,10 @@ label + input {
 
 .object-inspector.result .inspector-title {
     background-color: #ffd320;
+    padding-right: 4.5em;
 }
 
+.object-inspector .sql-controls,
 .object-inspector button {
     display: block;
     position: absolute;
@@ -341,6 +350,16 @@ label + input {
     vertical-align: 0.1em;
 }
 
+.object-inspector .sql-controls {
+    top: 0;
+    right: 0.5em;
+    line-height: 2;
+}
+
+.sql-controls label {
+    margin-left: 0;
+}
+
 .object-details {
     clear: both;
     width: 100%;
@@ -363,12 +382,48 @@ label + input {
     background-color: #f4f4f4;
 }
 
+.object-details td {
+    white-space: pre;
+    max-width: 30em;
+    overflow: auto;
+}
+
 .object-details .number {
     text-align: right;
 }
 
 .object-details .null {
     opacity: 0.4;
+}
+
+.object-details .detail-rowindex {
+    width: 3em;
+}
+
+.object-inspector .query-info {
+    position: absolute;
+    box-sizing: border-box;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1px solid #bbb;
+    background-color: #fff9e3;
+    padding: 0.3em 0.5em 0.5em;
+    display: none;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.object-inspector .sql-controls.show-sql ~ .query-info {
+    display: block;
+}
+
+.query-info h3 {
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+.query-info .sql {
+    font-family: monospace;
 }
 
 /* ================= SQL Pane =================== */
@@ -399,6 +454,7 @@ label + input {
     border-color: #ccc;
     border-style: solid;
     border-width: 1px 1px 1px 1px;
+    border-radius: 4px 4px 0 0;
 }
 
 #sql-pane-tabs li a.active {
