@@ -193,6 +193,10 @@ elAddConnection.addEventListener('click', function () {
     var user = window.prompt('Enter user for connection:');
     var connectionLabel;
 
+    if (!user) {
+        return;
+    }
+
     if (connections[user]) {
         connectionLabel = connections[user].el.querySelector('.connection-name');
         connectionLabel.classList.remove('collapsed');

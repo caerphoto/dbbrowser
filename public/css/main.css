@@ -144,6 +144,10 @@ footer.status-bar {
     /*cursor: col-resize;*/
 }
 
+.pane-sizer.vertical:hover {
+    background-color: #0084d1;
+}
+
 .pane-sizer.horizontal {
     top: 40em;
     left: 20.5em;
