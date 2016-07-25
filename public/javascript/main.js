@@ -50,6 +50,20 @@ function escapeForHTML(text) {
     });
 }
 
+function getAncestorMatchingClass(el, className) {
+    var elParent = el.parentNode;
+    var rx = new RegExp(className);
+
+    while (!rx.test(elParent.className)) {
+        if (elParent === document.body) {
+            return null;
+        }
+        elParent = elParent.parentNode;
+    }
+
+    return elParent;
+}
+
 function getObjectFromSynonym(objectName, objects) {
     var matchingObjectName;
 
@@ -371,6 +385,7 @@ function showSynonymTarget(evt) {
 
 function startDragging(evt) {
     var el = evt.target;
+
     if (!el || !/inspector-title|pane-sizer/.test(el.className)) {
         return;
     }
@@ -389,8 +404,16 @@ function startDragging(evt) {
     } else {
         dragData.el = el.parentNode;
         dragData.offsetY = evt.offsetY - elObjectInspectors.scrollTop;
-        bringInspectorToFront(el.parentNode);
     }
+}
+
+function bringToFront(evt) {
+    var elInspector = getAncestorMatchingClass(evt.target, 'object-inspector');
+    if (!elInspector) {
+        return;
+    }
+
+    bringInspectorToFront(elInspector);
 }
 
 function dragElement(evt) {
@@ -608,6 +631,7 @@ elConnectionList.addEventListener('click', function (evt) {
 });
 
 elObjectInspectors.addEventListener('mousedown', startDragging);
+elObjectInspectors.addEventListener('mousedown', bringToFront);
 elObjectInspectors.addEventListener('mousemove', dragElement);
 D.body.addEventListener('mouseup', stopDragging);
 elObjectInspectors.addEventListener('click', loadSQLForView);

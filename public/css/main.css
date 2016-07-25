@@ -307,6 +307,7 @@ label + input {
     line-height: 2;
     cursor: move;
     text-align: left;
+    white-space: pre;
 }
 
 .object-inspector.table .inspector-title {
@@ -315,7 +316,7 @@ label + input {
 
 .object-inspector.view .inspector-title {
     background-color: #c3eeaf;
-    padding-right: 5em;
+    /*padding-right: 5em;*/
 }
 
 .object-inspector.result .inspector-title {
