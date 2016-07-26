@@ -99,6 +99,13 @@ button:active {
     background-color: #ccc;
 }
 
+.global-controls {
+    position: absolute;
+    top: 0.8em;
+    left: 1em;
+    z-index 4;
+}
+
 
 #main-wrapper {
     position: fixed;
@@ -258,7 +265,7 @@ label + input {
     margin-left: 0.5em;
 }
 
-.connection-objects a {
+.use-lowercase .connection-objects a {
     text-transform: lowercase;
     transition: background-color 1s ease, color 1s ease;
 }
@@ -321,7 +328,7 @@ label + input {
 
 .object-inspector.view .inspector-title {
     background-color: #c3eeaf;
-    /*padding-right: 5em;*/
+    padding-right: 3.5em;
 }
 
 .object-inspector.result .inspector-title {
@@ -351,8 +358,7 @@ label + input {
 }
 
 .object-inspector.view .show-sql {
-    right: 2em;
-    display: none !important;
+    right: 0.2em;
 }
 
 .object-inspector .inspector-user {
@@ -370,10 +376,17 @@ label + input {
     margin-left: 0;
 }
 
+.use-lowercase .inspector-title,
+.use-lowercase .result .object-details th,
+.use-lowercase .table .object-details td,
+.use-lowercase .view .object-details td {
+    text-transform: lowercase;
+}
+
+
 .object-details {
     clear: both;
     width: 100%;
-    text-transform: lowercase;
 }
 
 .object-details th {
@@ -430,7 +443,7 @@ label + input {
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.object-inspector .sql-controls.show-sql ~ .query-info {
+.object-inspector.show-sql .query-info {
     display: block;
 }
 
@@ -477,6 +490,7 @@ label + input {
 #sql-pane-tabs li a.active {
     background-color: #fff;
     border-bottom-color: #fff;
+    color: #444;
 }
 
 #sql-pane textarea {
@@ -493,6 +507,13 @@ label + input {
     outline: none;
     font-family: monospace;
     font-size: 14px;
+    resize: none;
+    border-left: 2px solid transparent;
+}
+
+#sql-pane textarea:focus {
+    border-color: #0084d1;
+    box-shadow: inset 3px 0 3px -2px rgba(0, 132, 209, 0.2);
 }
 
 #sql-pane textarea.active {

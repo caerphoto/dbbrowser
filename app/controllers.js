@@ -16,13 +16,16 @@ const QUERIES = {
     getSynonyms: 'select synonym_name, table_name from user_synonyms order by synonym_name',
     getDataSample: 'select * from :object where rownum < 50',
     describe: 'select column_id, column_name, data_type, data_length from user_tab_columns where table_name = :objectName order by column_id',
-    getViewText: 'select text from user_views where view_name = :objectName'
+    dropTemp: 'DROP TABLE tmp_view_text',
+    createTemp: "CREATE TABLE tmp_view_text AS (SELECT TO_LOB(user_views.text) text FROM user_views WHERE view_name = '###')",
+    getViewText: 'SELECT text FROM tmp_view_text'
 };
 
 
 exports.ROOT = '/';
 exports.USER_OBJECTS = '/:user/objects';
 exports.POST_SQL = '/:user/sql';
+exports.VIEW_TEXT = '/:user/viewText/:viewName';
 exports.OBJECT_INFO = '/:user/:infoType/:objectName';
 
 exports.index = function (req, res) {
@@ -130,6 +133,7 @@ exports.getObjectInfo = function (req, res, next) {
         }
 
         connection.execute(query, queryParams , function (err, result) {
+            connection.close();
             if (err) {
                 console.error(err.message);
                 return res.status(500).send(err.message);
@@ -143,6 +147,54 @@ exports.getObjectInfo = function (req, res, next) {
         });
     });
 
+};
+
+exports.getViewText = function (req, res) {
+    const viewName = req.params.viewName;
+    console.log('getting view text for', req.params.user, viewName);
+
+    dbParams.user = req.params.user;
+    db.getConnection(dbParams, function (err, conn) {
+        if (err) {
+            conn.close();
+            console.error(err.message);
+            return res.status(500).send(err.message);
+        }
+        console.log('connected');
+        const query = QUERIES.createTemp.replace('###', viewName);
+        conn.execute(query, function (err) {
+            if (err) {
+                conn.close();
+                console.error(err.message);
+                console.log(query);
+                return res.status(500).send(err.message);
+            }
+            console.log('tmp_view_text created');
+            conn.execute(QUERIES.getViewText, function (err, result) {
+                var buf;
+                var text = '';
+
+                if (err || result.rows.length === 0) {
+                    conn.close();
+                    console.error(err.message);
+                    return res.status(500).send(err.message);
+                }
+
+                console.log('view text selected');
+
+                buf = result.rows[0].TEXT;
+                buf.setEncoding('utf8');
+                buf.on('end', function () {
+                    conn.execute(QUERIES.dropTemp);
+                    conn.close();
+                    res.json(text);
+                });
+                buf.on('data', function (chunk) {
+                    text += chunk;
+                });
+            });
+        });
+    });
 };
 
 exports.postSQL = function (req, res, next) {

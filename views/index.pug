@@ -7,8 +7,11 @@ html
       rel="stylesheet" type="text/css")
     link(rel="stylesheet", href="assets/css/main.css")
 
-  body
+  body.use-lowercase
     h1.app-name Oracle Database Browser
+    section.global-controls
+      input#use-lowercase(type="checkbox" checked="checked")
+      label(for="use-lowercase") Use lowercase object names
 
     #main-wrapper
       section#connections

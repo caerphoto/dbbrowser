@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === 'production') {
 app.get(controllers.ROOT, controllers.index);
 app.get(controllers.USER_OBJECTS, controllers.getObjects);
 app.use('/assets', express['static'](__dirname + '/public'));
+app.get(controllers.VIEW_TEXT, controllers.getViewText);
 app.get(controllers.OBJECT_INFO, controllers.getObjectInfo);
 app.use(bodyParser.text());
 app.post(controllers.POST_SQL, controllers.postSQL);

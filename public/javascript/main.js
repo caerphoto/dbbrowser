@@ -3,6 +3,7 @@
 
 var D = document;
 var elWorkspace = D.querySelector('#main-wrapper');
+var elUseLowercase = D.querySelector('#use-lowercase');
 var elAddConnection = D.querySelector('#add-connection');
 var elConnectionForm = D.querySelector('#connection-list-controls');
 var elConnectionList = D.querySelector('#connection-list');
@@ -182,6 +183,8 @@ function createCodeTab(user) {
 
     tabContent.className = 'code-editor';
     tabContent.id = 'sql-' + user;
+    tabContent.spellcheck = false;
+    tabContent.autocapitalize = 'none';
 
     elCodeTabs.appendChild(tab);
     elSQLPane.appendChild(tabContent);
@@ -298,7 +301,7 @@ function createInspector(objectData) {
     objectData.isView = objectData.type === 'view';
     objectData.isResult = objectData.type === 'result';
 
-    elInspector.className = 'object-inspector ' + objectData.type;
+    elInspector.className = 'object-inspector show-sql ' + objectData.type;
     elInspector.id = ['inspector', objectData.user, objectData.name].join('-');
     elInspector.style.zIndex = highestZIndex + 1;
     highestZIndex += 1;
@@ -488,17 +491,24 @@ function loadSQLForView(evt) {
         infoType: 'viewText',
         objectName: el.dataset.name
     }, function (objectData) {
-        var editorId = connections[el.dataset.user].codeTab;
+        var elTabLink = connections[el.dataset.user].codeTab.firstChild;
+        activateTab({ target: elTabLink });
+        elSQLPane.querySelector('textarea.active').value += '\n\n' + objectData;
     });
 }
 
 function toggleSQL(evt) {
     var el = evt.target;
-    if (!el || !/sql-toggle/.test(el.className) || el.nodeName !== 'INPUT') {
+    if (!el) {
         return;
     }
 
-    el.parentNode.classList.toggle('show-sql');
+    if (!/sql-toggle/.test(el.className) || el.nodeName !== 'INPUT') {
+        return;
+    }
+
+    el = getAncestorMatchingClass(el, 'object-inspector');
+    el.classList.toggle('show-sql');
 }
 
 function getCurrentSQLStatement(editor) {
@@ -616,6 +626,9 @@ function executeSQL(evt) {
     return false;
 }
 
+elUseLowercase.addEventListener('change', function () {
+    D.body.classList.toggle('use-lowercase');
+});
 elConnectionList.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', closeInspector);
