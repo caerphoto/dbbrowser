@@ -15,7 +15,7 @@ table {
 }
 
 html {
-    font-size: 12px;
+    font-size: 11px;
     font-family: "Open Sans", sans-serif;
 }
 
@@ -88,6 +88,7 @@ button {
     box-sizing: border-box;
     padding: 0.2em 0.5em;
     cursor: pointer;
+    line-height: 1;
 }
 
 button:hover {
@@ -145,20 +146,20 @@ footer.status-bar {
 
 .pane-sizer.vertical {
     top: 0;
-    left: 20.4em;
-    width: 0.1em;
+    left: 20em;
+    width: 0;
     bottom: 0;
     /* disabling this until it actually allows resizing */
     /*cursor: col-resize;*/
 }
 
-.pane-sizer.vertical:hover {
+.pane-sizer.horizontal:hover {
     background-color: #0084d1;
 }
 
 .pane-sizer.horizontal {
     top: 40em;
-    left: 20.5em;
+    left: 22em;
     height: 0.5em;
     right: 0;
     cursor: row-resize;
@@ -167,22 +168,23 @@ footer.status-bar {
 #connections {
     top: 0;
     left: 0;
-    width: 20.4em;
+    width: 22em;
     bottom: 0;
+    border-right: 1px solid #ccc;
 }
 
 #object-inspectors {
     top: 0;
-    left: 20.5em;
+    left: 22em;
     right: 0;
     height: 40em;
-    box-shadow: inset 0 0 4px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 7px rgba(0, 0, 0, 0.1);
     overflow: auto;
 }
 
 #sql-pane {
     top: 40.5em;
-    left: 20.5em;
+    left: 22em;
     right: 0;
     bottom: 0;
 }
@@ -315,8 +317,8 @@ label + input {
 
 .object-inspector .inspector-title {
     display: block;
-    padding: 0 0.5em 0 4.2em;
-    line-height: 2;
+    padding: 0 0.5em 0.4em 4.4em;
+    line-height: 1;
     cursor: move;
     text-align: left;
     white-space: pre;
@@ -328,7 +330,7 @@ label + input {
 
 .object-inspector.view .inspector-title {
     background-color: #c3eeaf;
-    padding-right: 3.5em;
+    padding-right: 3.7em;
 }
 
 .object-inspector.result .inspector-title {
@@ -420,10 +422,11 @@ label + input {
 }
 
 .object-details .detail-rowindex {
-    max-width: 3em;
+    max-width: 5em;
     opacity: 0.5;
     border-right: 1px solid #e4e4e4;
     padding-right: 0.5em;
+    overflow: hidden;
 }
 
 .object-details tbody tr:nth-child(odd) .detail-rowindex {
@@ -453,7 +456,8 @@ label + input {
 }
 
 .query-info .sql {
-    font-family: monospace;
+    font-family: "Source Code Pro";
+    font-size: 12px;
 }
 
 /* ================= SQL Pane =================== */
@@ -505,8 +509,8 @@ label + input {
     bottom: 0;
     display: none;
     outline: none;
-    font-family: monospace;
-    font-size: 14px;
+    font-family: "Source Code Pro";
+    font-size: 13px;
     resize: none;
     border-left: 2px solid transparent;
 }
