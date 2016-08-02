@@ -1,6 +1,8 @@
 'use strict';
 
 const db = require('oracledb');
+const SimpleOracleDB = require('simple-oracledb');
+SimpleOracleDB.extend(db);
 
 const dbParams = {
     password: '*',
@@ -133,8 +135,8 @@ exports.getObjectInfo = function (req, res, next) {
         }
 
         connection.execute(query, queryParams , function (err, result) {
-            connection.close();
             if (err) {
+                connection.close();
                 console.error(err.message);
                 return res.status(500).send(err.message);
             }
@@ -144,6 +146,7 @@ exports.getObjectInfo = function (req, res, next) {
             } else {
                 res.json(result.rows);
             }
+            connection.close();
         });
     });
 

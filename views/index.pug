@@ -24,12 +24,12 @@ html
         #connection-list-wrapper
           ul#connection-list
 
-      div#connection-sizer.pane-sizer.vertical
+      #connection-sizer.pane-sizer.vertical
 
       section#object-inspectors
         div#debug
 
-      div#object-inspectors-sizer.pane-sizer.horizontal
+      #object-inspectors-sizer.pane-sizer.horizontal
 
       section#sql-pane
         ul#sql-pane-tabs
@@ -37,6 +37,26 @@ html
             a.active(href="#sql-debug") Debug
 
         textarea#sql-debug.active
+
+    #dialog-text-prompt.dialog
+      .content
+        form(action="#")
+          p.message
+          input
+        .dialog-buttons
+          button.ok.primary OK
+          button.cancel Cancel
+
+    #dialog-alert.dialog
+      .content
+        p.message
+        .dialog-buttons
+          button.ok.primary OK
+
+    #dialog-status.dialog
+      .content
+        p.message
+
 
     footer.status-bar Click 'Add Connection' to get started.
 

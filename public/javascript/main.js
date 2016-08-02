@@ -4,6 +4,7 @@
 var D = document;
 var elWorkspace = D.querySelector('#main-wrapper');
 var elUseLowercase = D.querySelector('#use-lowercase');
+var elConnectionName = D.querySelector('#connection-name');
 var elAddConnection = D.querySelector('#add-connection');
 var elConnectionForm = D.querySelector('#connection-list-controls');
 var elConnectionList = D.querySelector('#connection-list');
@@ -12,6 +13,66 @@ var elSQLPane = D.querySelector('#sql-pane');
 var elCodeTabs = D.querySelector('#sql-pane-tabs');
 var elSizerH = D.querySelector('#object-inspectors-sizer');
 var elDebug = D.querySelector('#debug');
+
+var elStatusbar = D.querySelector('footer.status-bar');
+
+var Dialog = function (selector) {
+    this.el = D.querySelector(selector);
+    this.el.addEventListener('click', this.cancel.bind(this));
+    this.el.addEventListener('click', this.ok.bind(this));
+    this.el.addEventListener('submit', this.ok.bind(this));
+    this.elInput = this.el.querySelector('input');
+    this.elMessage = this.el.querySelector('.message');
+};
+
+Dialog.prototype = {
+    show: function (message, callbackOrType) {
+        this.elMessage.innerHTML = message;
+        this.el.classList.add('active');
+        if (this.elInput) {
+            this.elInput.value = '';
+            this.elInput.focus();
+        }
+        if (!callbackOrType) {
+            return;
+        }
+
+        this.el.classList.remove(this.type);
+
+        if (typeof callbackOrType === 'function') {
+            this.onSubmit = callbackOrType;
+        } else if (typeof callbackOrType === 'string') {
+            this.type = callbackOrType;
+            this.el.classList.add(this.type);
+        }
+    },
+    hide: function () {
+        this.el.classList.remove('active');
+    },
+    cancel: function (evt) {
+        if (!/cancel/.test(evt.target.className)) {
+            return;
+        }
+        this.hide();
+    },
+    ok: function (evt) {
+        if (!/ok/.test(evt.target.className) && evt.target.nodeName !== 'FORM') {
+            return;
+        }
+
+        evt.preventDefault();
+        this.hide();
+
+        if (this.onSubmit) {
+            this.onSubmit(this.elInput ? this.elInput.value : undefined);
+            this.onSubmit = null;
+        }
+    }
+};
+
+var alertDialog = new Dialog('#dialog-alert');
+var promptDialog = new Dialog('#dialog-text-prompt');
+var statusDialog = new Dialog('#dialog-status');
 
 var templates = {
     connection: D.querySelector('#template-connection').innerHTML,
@@ -137,16 +198,18 @@ function fetchObjects(user, callback) {
     var path = '/' + user + '/objects';
     var xhr = new XMLHttpRequest();
 
+    statusDialog.show('Loading objects...');
     xhr.addEventListener('load', function () {
         var objects;
 
+        statusDialog.hide();
         if (xhr.status < 400) {
             objects = JSON.parse(xhr.responseText);
             objects.user = user;
             flagBrokenSynonyms(objects);
             callback(objects);
         } else {
-            window.alert('Error:\n\n' + xhr.responseText);
+            alertDialog.show('Error:\n\n' + xhr.responseText, 'error');
         }
     }, false);
 
@@ -159,14 +222,16 @@ function fetchObject(options, callback) {
     var path = '/' + [options.user, infoType, options.objectName].join('/');
     var xhr = new XMLHttpRequest();
 
+    statusDialog.show('Loading object details...');
     xhr.addEventListener('load', function () {
         var object;
 
+        statusDialog.hide();
         if (xhr.status < 400) {
             object = JSON.parse(xhr.responseText);
             callback(object);
         } else {
-            window.alert('Error:\n\n' + xhr.responseText);
+            alertDialog.show('Error:\n\n' + xhr.responseText, 'error');
         }
     }, false);
 
@@ -193,37 +258,37 @@ function createCodeTab(user) {
 }
 
 elAddConnection.addEventListener('click', function () {
-    var user = window.prompt('Enter user for connection:');
-    var connectionLabel;
+    promptDialog.show('Enter user for connection:', function (user) {
+        var connectionLabel;
+        if (!user) {
+            return;
+        }
 
-    if (!user) {
-        return;
-    }
+        if (connections[user]) {
+            connectionLabel = connections[user].el.querySelector('.connection-name');
+            connectionLabel.classList.remove('collapsed');
+            connectionLabel.scrollIntoView();
+            return;
+        }
 
-    if (connections[user]) {
-        connectionLabel = connections[user].el.querySelector('.connection-name');
-        connectionLabel.classList.remove('collapsed');
-        connectionLabel.scrollIntoView();
-        return;
-    }
+        fetchObjects(user, function (objects) {
+            var elConnection = document.createElement('li');
+            var html = Mustache.render(templates.connection, objects);
 
-    fetchObjects(user, function (objects) {
-        var elConnection = document.createElement('li');
-        var html = Mustache.render(templates.connection, objects);
+            elConnection.innerHTML = html;
+            elConnection.className = 'connection-item';
+            elConnection.dataset.user = user;
+            elConnectionList.appendChild(elConnection);
 
-        elConnection.innerHTML = html;
-        elConnection.className = 'connection-item';
-        elConnection.dataset.user = user;
-        elConnectionList.appendChild(elConnection);
+            connections[user] = {
+                el: elConnection,
+                objects: objects,
+                codeTab: createCodeTab(user),
+                inspectors: {}
+            };
 
-        connections[user] = {
-            el: elConnection,
-            objects: objects,
-            codeTab: createCodeTab(user),
-            inspectors: {}
-        };
-
-        activateTab({ target: connections[user].codeTab.querySelector('a') });
+            activateTab({ target: connections[user].codeTab.querySelector('a') });
+        });
     });
 });
 
@@ -368,10 +433,10 @@ function showSynonymTarget(evt) {
 
     if (synonymTarget === 'no match') {
         el.classList.add('broken');
-        return window.alert('Synonym appears to be broken.');
+        return alertDialog.show('Synonym appears to be broken.', 'info');
     } else if (synonymTarget === 'cyclic') {
         el.classList.add('broken');
-        return window.alert('Synonym refers to itself.');
+        return alertDialog.show('Synonym refers to itself.', 'info');
     }
 
     var targetLink = connections[user].el.querySelector('[href="#' +
@@ -575,6 +640,8 @@ function executeSQL(evt) {
         return;
     }
 
+    elStatusbar.innerHTML = 'Executing query...';
+
     user = editor.id.replace(/^sql-/, '');
     path = '/' + user + '/sql';
     xhr = new XMLHttpRequest();
@@ -589,8 +656,13 @@ function executeSQL(evt) {
         };
         var elInspector;
 
+        elStatusbar.innerHTML = 'Query complete.';
+
         if (xhr.status < 400) {
             result = JSON.parse(xhr.response);
+            if (!result.metaData || !result.rows) {
+                return alertDialog.show(xhr.response, 'error');
+            }
             objectData.columns = result.metaData.map(function (columnData) {
                 return columnData.name;
             });
@@ -616,7 +688,7 @@ function executeSQL(evt) {
                 object: objectData
             };
         } else {
-            window.alert('Error:\n\n' + xhr.responseText);
+            alertDialog.show('Error:\n\n' + xhr.responseText, 'error');
         }
     });
 

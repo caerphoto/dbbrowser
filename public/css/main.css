@@ -70,6 +70,7 @@ a {
     content: '\2212  '; /* minus sign (same width as +, unlike hyphen) */
 }
 
+.expander.collapsed ~ .query-info,
 .expander.collapsed + * {
     display: none;
 }
@@ -97,7 +98,21 @@ button:hover {
 }
 
 button:active {
-    background-color: #ccc;
+    background-color: #ddd;
+}
+
+button.primary {
+    background-color: #dde8ff;
+    border-color: #88b8dd;
+}
+
+button.primary:hover {
+    background-color: #eef4ff;
+    border-color: #6698cc;
+}
+
+button.primary:active {
+    background-color: #ccd8ee;
 }
 
 .global-controls {
@@ -199,7 +214,8 @@ footer.status-bar {
     height: 3em;
 }
 
-#connection-list-controls input,
+#connection-list-controls input[type="checkbox"],
+#connection-list-controls input[type="search"],
 #connection-list-controls label {
     line-height: 1.4;
     display: none !important;
@@ -446,7 +462,7 @@ label + input {
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.object-inspector.show-sql .query-info {
+.show-sql .query-info {
     display: block;
 }
 
@@ -457,7 +473,7 @@ label + input {
 
 .query-info .sql {
     font-family: "Source Code Pro";
-    font-size: 12px;
+    font-size: 11px;
 }
 
 /* ================= SQL Pane =================== */
@@ -522,4 +538,76 @@ label + input {
 
 #sql-pane textarea.active {
     display: block;
+}
+
+
+/* ================= Dialogs =================== */
+
+.dialog {
+    position: fixed;
+    z-index: 999;
+    background-color: rgba(192, 192, 192, 0.5);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+
+    display: none;
+}
+
+.dialog.active {
+    display: block;
+}
+
+.dialog .content {
+    position: absolute;
+    box-sizing: border-box;
+    top: 25%;
+    height: 11em;
+    margin-top: -5.5em;
+    left: 50%;
+    width: 400px;
+    margin-left: -200px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 2em;
+    font-size: 1.4rem;
+}
+
+.dialog.error .content {
+    color: #b00;
+}
+
+.dialog .message {
+    margin-bottom: 1em;
+}
+
+.dialog input {
+    box-sizing: border-box;
+    font: inherit;
+    padding: 0.2em 0.5em;
+    width: 100%;
+}
+
+.dialog .dialog-buttons {
+    position: absolute;
+    bottom: 2em;
+    right: 2em;
+}
+
+.dialog-buttons button {
+    font: inherit;
+    font-size: 100%;
+    margin-left: 1em;
+    width: 5em;
+}
+
+#dialog-status .content {
+    line-height: 1.4;
+    text-align: center;
+    height: 8em;
+    margin-top: -4em;
 }
