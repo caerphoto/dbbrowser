@@ -366,8 +366,9 @@ function createInspector(objectData) {
     objectData.isView = objectData.type === 'view';
     objectData.isResult = objectData.type === 'result';
 
-    elInspector.className = 'object-inspector show-sql ' + objectData.type;
+    elInspector.className = 'object-inspector show-query-sql ' + objectData.type;
     elInspector.id = ['inspector', objectData.user, objectData.name].join('-');
+    elInspector.dataset.user = objectData.user;
     elInspector.style.zIndex = highestZIndex + 1;
     highestZIndex += 1;
     elInspector.innerHTML = Mustache.render(template, objectData);
@@ -547,9 +548,11 @@ function activateTab(evt) {
 
 function loadSQLForView(evt) {
     var el = evt.target;
-    if (!el || !/show-sql/.test(el.className)) {
+    if (!el || !/show-view-sql/.test(el.className)) {
         return;
     }
+
+    console.log(evt);
 
     fetchObject({
         user: el.dataset.user,
@@ -573,7 +576,7 @@ function toggleSQL(evt) {
     }
 
     el = getAncestorMatchingClass(el, 'object-inspector');
-    el.classList.toggle('show-sql');
+    el.classList.toggle('show-query-sql');
 }
 
 function getCurrentSQLStatement(editor) {

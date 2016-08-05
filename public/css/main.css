@@ -82,12 +82,11 @@ a {
 button {
     border: 1px solid #aaa;
     background: #eee;
-    border-radius: 2px;
     -webkit-appearance: none;
     appearance: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
-    padding: 0.2em 0.5em;
+    padding: 0.3em 0.5em;
     cursor: pointer;
     line-height: 1;
 }
@@ -119,7 +118,7 @@ button.primary:active {
     position: absolute;
     top: 0.8em;
     left: 1em;
-    z-index 4;
+    z-index: 4;
 }
 
 
@@ -318,12 +317,22 @@ label + input {
     position: absolute;
     box-sizing: border-box;
     background-color: #fff;
-    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1);
     top: 2em;
     left: 2em;
     transition: border-color 0.4s ease, color 0.4s ease;
-    border-radius: 2px;
     overflow: visible;
+}
+
+.object-inspector::before {
+    position: absolute;
+    top: -1.4em;
+    left: 0;
+    content: attr(data-user);
+    background-color: #fff;
+    border-radius: 2px;
+    color: rgba(0, 0, 0, 0.5);
+    padding: 1px 1px 2px;
 }
 
 .object-inspector.pinged {
@@ -333,7 +342,7 @@ label + input {
 
 .object-inspector .inspector-title {
     display: block;
-    padding: 0 0.5em 0.4em 4.4em;
+    padding: 0.3em 0.5em 0.4em 4.4em;
     line-height: 1;
     cursor: move;
     text-align: left;
@@ -358,11 +367,14 @@ label + input {
 .object-inspector button {
     display: block;
     position: absolute;
-    top: 0.2em;
+    top: 0.1em;
+}
+.object-inspector button {
+    padding: 0.12em 0.3em;
 }
 
 .object-inspector .expander {
-    left: 2.3em;
+    left: 2em;
 }
 
 .object-inspector .close-inspector {
@@ -375,7 +387,7 @@ label + input {
     display: none !important;
 }
 
-.object-inspector.view .show-sql {
+.object-inspector.view .show-view-sql {
     right: 0.2em;
 }
 
@@ -387,7 +399,7 @@ label + input {
 .object-inspector .sql-controls {
     top: 0;
     right: 0.5em;
-    line-height: 2;
+    line-height: 1.3;
 }
 
 .sql-controls label {
@@ -462,7 +474,7 @@ label + input {
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.show-sql .query-info {
+.show-query-sql .query-info {
     display: block;
 }
 

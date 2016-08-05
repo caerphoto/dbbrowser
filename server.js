@@ -41,7 +41,3 @@ server = app.listen(6462, '127.0.0.1', function () {
 
     console.log('App listening at http://%s:%s in %s env', host, port, env);
 });
-
-process.on('exit', function () {
-    server.close();
-});
