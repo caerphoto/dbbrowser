@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
@@ -11,6 +12,8 @@ const app = express();
 
 var server;
 
+fs.writeFileSync('./PID', process.pid, 'utf8');
+
 app.set('view engine', 'pug');
 
 if (process.env.NODE_ENV === 'production') {
@@ -18,7 +21,6 @@ if (process.env.NODE_ENV === 'production') {
 } else {
     app.use(morgan('dev'));
 }
-
 
 app.get(controllers.ROOT, controllers.index);
 app.get(controllers.USER_OBJECTS, controllers.getObjects);
@@ -40,4 +42,12 @@ server = app.listen(6462, '127.0.0.1', function () {
     var env = process.env.NODE_ENV || 'development';
 
     console.log('App listening at http://%s:%s in %s env', host, port, env);
+});
+
+process.on('SIGINT', function () {
+    console.log('Interrupt detected, exiting...');
+
+    server.close();
+    fs.writeFileSync('./PID', '', 'utf8');
+    process.exit();
 });
