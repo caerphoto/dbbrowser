@@ -218,8 +218,7 @@ function readColumn(row, colInfo, callback) {
     });
 
     item.on('error', function (err) {
-        console.trace(err);
-        //callback(err);
+        callback(err);
     });
 }
 
@@ -249,9 +248,10 @@ function fetchClobs(queryResult, callback) {
     queryResult.rows.forEach(function (row, index) {
         fetchedRows[index] = {};
         meta.forEach(function (colInfo) {
-            readColumn(row, colInfo, function (err, data) {
+            return readColumn(row, colInfo, function (err, data) {
                 if (err) {
                     callback(err);
+                    return false;
                 }
                 fetchedRows[index][colInfo.name] = data;
                 fetchedItems += 1;
@@ -261,6 +261,7 @@ function fetchClobs(queryResult, callback) {
                         rows: fetchedRows
                     });
                 }
+                return true;
             });
         });
     });
@@ -281,7 +282,6 @@ exports.postSQL = function (req, res, next) {
         connection.execute(query, function (err2, result) {
             if (err2) {
                 connection.close();
-                console.log('err2');
                 console.error(err2.message);
                 return res.status(500).send(err2.message);
             }
@@ -289,8 +289,7 @@ exports.postSQL = function (req, res, next) {
             fetchClobs(result, function (err3, data) {
                 connection.close();
                 if (err3) {
-                    console.log('err3');
-                    console.error(err3);
+                    console.error(err3.message);
                     return res.status(500).send(err3.message);
                 }
                 res.json(data);
