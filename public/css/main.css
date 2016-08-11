@@ -121,6 +121,11 @@ button.primary:active {
     z-index: 4;
 }
 
+.global-controls label {
+    margin-right: 1em;
+    margin-left: 0;
+}
+
 
 #main-wrapper {
     position: fixed;
@@ -295,12 +300,16 @@ label + input {
     content: " \2192"; /* right arrow */
 }
 
-.connection-objects a.broken {
+.hide-broken-synonyms .connection-objects .broken {
+    display: none;
+}
+
+.connection-objects .broken a {
     color: #c5000b;
     opacity: 0.4;
 }
 
-.connection-objects a.cyclic::before {
+.connection-objects .cyclic a::before {
     content: "\21bb  "; /* clockwise open circle arrow */
     text-decoration: none;
 }

@@ -6,11 +6,14 @@ html
     link(href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro" rel="stylesheet")
     link(rel="stylesheet", href="assets/css/main.css")
 
-  body.use-lowercase
+  body.use-lowercase.hide-broken-synonyms
     h1.app-name Oracle Database Browser
     section.global-controls
       input#use-lowercase(type="checkbox" checked="checked")
       label(for="use-lowercase") Use lowercase object names
+
+      input#hide-broken-synonyms(type="checkbox" checked="checked")
+      label(for="hide-broken-synonyms") Hide broken synonyms
 
     #main-wrapper
       section#connections

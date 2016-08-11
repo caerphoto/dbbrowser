@@ -17,10 +17,9 @@
   <label class="object-list-label synonyms expander collapsed">Synonyms ({{ synonyms.length }})</label>
   <ul class="connection-objects synonyms">
     {{# synonyms }}
-    <li><a href="#{{ TABLE_NAME }}"
-      {{# broken }}
-      class="broken {{# cyclic }}cyclic{{/ cyclic }}"
-      {{/ broken }} data-type="synonym" data-target="{{ TABLE_NAME }}">{{ SYNONYM_NAME }}</a></li>
+    <li {{# broken }} class="broken {{# cyclic }}cyclic{{/ cyclic }}" {{/ broken }}>
+      <a href="#{{ TABLE_NAME }}" title="target: {{ TABLE_NAME }}" data-type="synonym" data-target="{{ TABLE_NAME }}">{{ SYNONYM_NAME }}</a>
+    </li>
     {{/ synonyms }}
   </ul>
 </div>

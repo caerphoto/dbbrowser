@@ -4,6 +4,7 @@
 var D = document;
 var elWorkspace = D.querySelector('#main-wrapper');
 var elUseLowercase = D.querySelector('#use-lowercase');
+var elHideBrokenSynonyms = D.querySelector('#hide-broken-synonyms');
 var elConnectionName = D.querySelector('#connection-name');
 var elAddConnection = D.querySelector('#add-connection');
 var elConnectionForm = D.querySelector('#connection-list-controls');
@@ -256,45 +257,6 @@ function createCodeTab(user) {
 
     return tab;
 }
-
-elAddConnection.addEventListener('click', function () {
-    promptDialog.show('Enter user for connection:', function (user) {
-        var connectionLabel;
-        if (!user) {
-            return;
-        }
-
-        if (connections[user]) {
-            connectionLabel = connections[user].el.querySelector('.connection-name');
-            connectionLabel.classList.remove('collapsed');
-            connectionLabel.scrollIntoView();
-            return;
-        }
-
-        fetchObjects(user, function (objects) {
-            var elConnection = document.createElement('li');
-            var html = Mustache.render(templates.connection, objects);
-
-            elConnection.innerHTML = html;
-            elConnection.className = 'connection-item';
-            elConnection.dataset.user = user;
-            elConnectionList.appendChild(elConnection);
-
-            connections[user] = {
-                el: elConnection,
-                objects: objects,
-                codeTab: createCodeTab(user),
-                inspectors: {}
-            };
-
-            activateTab({ target: connections[user].codeTab.querySelector('a') });
-        });
-    });
-});
-
-elConnectionForm.addEventListener('submit', function (evt) {
-    evt.preventDefault();
-});
 
 function inArray(str, arr) {
     var rx = new RegExp('^' + str + '$');
@@ -552,8 +514,6 @@ function loadSQLForView(evt) {
         return;
     }
 
-    console.log(evt);
-
     fetchObject({
         user: el.dataset.user,
         infoType: 'viewText',
@@ -701,8 +661,50 @@ function executeSQL(evt) {
     return false;
 }
 
+elAddConnection.addEventListener('click', function () {
+    promptDialog.show('Enter user for connection:', function (user) {
+        var connectionLabel;
+        if (!user) {
+            return;
+        }
+
+        if (connections[user]) {
+            connectionLabel = connections[user].el.querySelector('.connection-name');
+            connectionLabel.classList.remove('collapsed');
+            connectionLabel.scrollIntoView();
+            return;
+        }
+
+        fetchObjects(user, function (objects) {
+            var elConnection = document.createElement('li');
+            var html = Mustache.render(templates.connection, objects);
+
+            elConnection.innerHTML = html;
+            elConnection.className = 'connection-item';
+            elConnection.dataset.user = user;
+            elConnectionList.appendChild(elConnection);
+
+            connections[user] = {
+                el: elConnection,
+                objects: objects,
+                codeTab: createCodeTab(user),
+                inspectors: {}
+            };
+
+            activateTab({ target: connections[user].codeTab.querySelector('a') });
+        });
+    });
+});
+
+elConnectionForm.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+});
+
 elUseLowercase.addEventListener('change', function () {
     D.body.classList.toggle('use-lowercase');
+});
+elHideBrokenSynonyms.addEventListener('change', function () {
+    D.body.classList.toggle('hide-broken-synonyms');
 });
 elConnectionList.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', toggleLabelCollapsed);
@@ -728,11 +730,8 @@ elObjectInspectors.addEventListener('mousemove', dragElement);
 D.body.addEventListener('mouseup', stopDragging);
 elObjectInspectors.addEventListener('click', loadSQLForView);
 elObjectInspectors.addEventListener('change', toggleSQL);
-
 elCodeTabs.addEventListener('click', activateTab);
-
 elSizerH.addEventListener('mousedown', startDragging);
 elWorkspace.addEventListener('mousemove', dragElement);
 D.body.addEventListener('mouseup', stopDragging);
-
 elSQLPane.addEventListener('keydown', executeSQL);
