@@ -224,7 +224,7 @@ function readColumn(row, colInfo, callback) {
 
 function fetchClobs(queryResult, callback) {
     if (queryResult.rows.length === 0) {
-        return callback(queryResult);
+        return callback(null, queryResult);
     }
 
     const meta = queryResult.metaData;
@@ -242,7 +242,7 @@ function fetchClobs(queryResult, callback) {
     let fetchedItems = 0;
 
     if (numClobColumns === 0) {
-        return callback(queryResult);
+        return callback(null, queryResult);
     }
 
     queryResult.rows.forEach(function (row, index) {
@@ -274,22 +274,21 @@ exports.postSQL = function (req, res, next) {
     dbParams.user = req.params.user;
     db.getConnection(dbParams, function (err1, connection) {
         if (err1) {
-            console.log('err1');
-            console.error(err1.message);
+            console.error('Error getting connection:', err1.message);
             return res.status(500).send(err1.message);
         }
 
         connection.execute(query, function (err2, result) {
             if (err2) {
                 connection.close();
-                console.error(err2.message);
+                console.error('Error executing query:', err2.message);
                 return res.status(500).send(err2.message);
             }
 
             fetchClobs(result, function (err3, data) {
                 connection.close();
                 if (err3) {
-                    console.error(err3.message);
+                    console.error('Error from fetchClobs:', err3);
                     return res.status(500).send(err3.message);
                 }
                 res.json(data);
