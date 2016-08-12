@@ -90,6 +90,11 @@ var dragData = {
     offsetY: 0
 };
 
+var newInspectorPosition = {
+    left: 10,
+    top: 15
+};
+
 var highestZIndex = 0;
 var inspectorPaneRect = elObjectInspectors.getBoundingClientRect();
 var workspaceRect = elWorkspace.getBoundingClientRect();
@@ -332,9 +337,19 @@ function createInspector(objectData) {
     elInspector.id = ['inspector', objectData.user, objectData.name].join('-');
     elInspector.dataset.user = objectData.user;
     elInspector.style.zIndex = highestZIndex + 1;
+    elInspector.style.top = newInspectorPosition.top + 'px';
+    elInspector.style.left = newInspectorPosition.left + 'px';
     highestZIndex += 1;
     elInspector.innerHTML = Mustache.render(template, objectData);
+
     bringInspectorToFront(elInspector, true);
+
+    if (newInspectorPosition.top < elObjectInspectors.offsetHeight - 50) {
+        newInspectorPosition.top += 10;
+    }
+    if (newInspectorPosition.left < elObjectInspectors.offsetWidth - 50) {
+        newInspectorPosition.left += 10;
+    }
 
     return elInspector;
 }

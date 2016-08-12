@@ -1,8 +1,6 @@
 'use strict';
 
 const db = require('oracledb');
-const SimpleOracleDB = require('simple-oracledb');
-SimpleOracleDB.extend(db);
 
 const dbParams = {
     password: '*',
@@ -11,6 +9,7 @@ const dbParams = {
 
 db.outFormat = db.OBJECT;
 db.maxRows = 1000;
+db.extendedMetaData = true;
 
 const QUERIES = {
     getTables: 'select table_name from user_tables order by table_name',
@@ -116,9 +115,6 @@ exports.getObjectInfo = function (req, res, next) {
     case 'viewText':
         query = QUERIES.getViewText;
         break;
-    case 'sql':
-        query = req.body;
-        break;
     default:
         return next();
     }
@@ -200,7 +196,103 @@ exports.getViewText = function (req, res) {
     });
 };
 
+function readColumn(row, colInfo, callback) {
+    let text = '';
+    const item = row[colInfo.name];
+
+    if (colInfo.fetchType !== db.CLOB) {
+        return callback(null, item);
+    }
+
+    if (!item) {
+        return callback(null, item);
+    }
+
+    item.setEncoding('utf8');
+    item.on('data', function (chunk) {
+        text += chunk;
+    });
+    item.on('end', function () {
+        item.close();
+        callback(null, text);
+    });
+
+    item.on('error', function (err) {
+        callback(err);
+    });
+}
+
+function fetchClobs(queryResult, callback) {
+    if (queryResult.rows.length === 0) {
+        return callback(null, queryResult);
+    }
+
+    const meta = queryResult.metaData;
+
+    const fetchedRows = [];
+    const firstRow = queryResult.rows[0];
+    const numClobColumns = meta.reduce(function (count, colInfo) {
+        if (colInfo.fetchType === db.CLOB) {
+            count += 1;
+        }
+        return count;
+    }, 0);
+
+    const totalItems = queryResult.rows.length * meta.length;
+    let fetchedItems = 0;
+
+    if (numClobColumns === 0) {
+        return callback(null, queryResult);
+    }
+
+    queryResult.rows.forEach(function (row, index) {
+        fetchedRows[index] = {};
+        meta.forEach(function (colInfo) {
+            return readColumn(row, colInfo, function (err, data) {
+                if (err) {
+                    callback(err);
+                    return false;
+                }
+                fetchedRows[index][colInfo.name] = data;
+                fetchedItems += 1;
+                if (fetchedItems === totalItems) {
+                    callback(null, {
+                        metaData: meta,
+                        rows: fetchedRows
+                    });
+                }
+                return true;
+            });
+        });
+    });
+
+}
+
 exports.postSQL = function (req, res, next) {
-    req.params.infoType = 'sql';
-    exports.getObjectInfo(req, res, next);
+    let query = req.body;
+
+    dbParams.user = req.params.user;
+    db.getConnection(dbParams, function (err1, connection) {
+        if (err1) {
+            console.error('Error getting connection:', err1.message);
+            return res.status(500).send(err1.message);
+        }
+
+        connection.execute(query, function (err2, result) {
+            if (err2) {
+                connection.close();
+                console.error('Error executing query:', err2.message);
+                return res.status(500).send(err2.message);
+            }
+
+            fetchClobs(result, function (err3, data) {
+                connection.close();
+                if (err3) {
+                    console.error('Error from fetchClobs:', err3);
+                    return res.status(500).send(err3.message);
+                }
+                res.json(data);
+            });
+        });
+    });
 };
