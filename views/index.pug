@@ -6,14 +6,17 @@ html
     link(href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro" rel="stylesheet")
     link(rel="stylesheet", href="assets/css/main.css")
 
-  body.use-lowercase.hide-broken-synonyms
+  body.use-lowercase.show-row-numbers
     h1.app-name Oracle Database Browser
-    section.global-controls
-      input#use-lowercase(type="checkbox" checked="checked")
+    section#global-controls
+      input#use-lowercase(type="checkbox" checked="checked" data-class-to-toggle="use-lowercase")
       label(for="use-lowercase") Use lowercase object names
 
-      input#hide-broken-synonyms(type="checkbox" checked="checked")
-      label(for="hide-broken-synonyms") Hide broken synonyms
+      input#show-broken-synonyms(type="checkbox" data-class-to-toggle="show-broken-synonyms")
+      label(for="show-broken-synonyms") Show broken synonyms
+
+      input#show-row-numbers(type="checkbox" checked="checked" data-class-to-toggle="show-row-numbers")
+      label(for="show-row-numbers") Show row numbers
 
     #main-wrapper
       section#connections

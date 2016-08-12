@@ -223,7 +223,7 @@ function readColumn(row, colInfo, callback) {
 }
 
 function fetchClobs(queryResult, callback) {
-    if (queryResult.rows.length === 0) {
+    if (!queryResult || !queryResult.rows || queryResult.rows.length === 0) {
         return callback(null, queryResult);
     }
 

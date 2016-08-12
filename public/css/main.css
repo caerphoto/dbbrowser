@@ -114,14 +114,14 @@ button.primary:active {
     background-color: #ccd8ee;
 }
 
-.global-controls {
+#global-controls {
     position: absolute;
     top: 0.8em;
     left: 1em;
     z-index: 4;
 }
 
-.global-controls label {
+#global-controls label {
     margin-right: 1em;
     margin-left: 0;
 }
@@ -300,8 +300,19 @@ label + input {
     content: " \2192"; /* right arrow */
 }
 
-.hide-broken-synonyms .connection-objects .broken {
+.connection-objects .broken-hint {
+    color: #888;
+}
+
+.show-broken-synonyms .connection-objects .broken-hint {
     display: none;
+}
+
+.connection-objects .broken {
+    display: none;
+}
+.show-broken-synonyms .connection-objects .broken {
+    display: block;
 }
 
 .connection-objects .broken a {
@@ -464,6 +475,11 @@ label + input {
     border-right: 1px solid #e4e4e4;
     padding-right: 0.5em;
     overflow: hidden;
+    display: none;
+}
+
+.show-row-numbers .object-details .detail-rowindex {
+    display: table-cell;
 }
 
 .object-details tbody tr:nth-child(odd) .detail-rowindex {

@@ -3,8 +3,9 @@
 
 var D = document;
 var elWorkspace = D.querySelector('#main-wrapper');
-var elUseLowercase = D.querySelector('#use-lowercase');
-var elHideBrokenSynonyms = D.querySelector('#hide-broken-synonyms');
+
+var elGlobalControls = D.querySelector('#global-controls');
+
 var elConnectionName = D.querySelector('#connection-name');
 var elAddConnection = D.querySelector('#add-connection');
 var elConnectionForm = D.querySelector('#connection-list-controls');
@@ -90,6 +91,10 @@ var dragData = {
     offsetY: 0
 };
 
+var startingInspectorPosition = {
+    left: 10,
+    top: 15
+};
 var newInspectorPosition = {
     left: 10,
     top: 15
@@ -197,6 +202,9 @@ function flagBrokenSynonyms(objects) {
         if (target === 'no match') {
             synonym.broken = true;
         }
+    });
+    objects.hasOnlyBroken = objects.synonyms.every(function (synonym) {
+        return synonym.broken;
     });
 }
 
@@ -346,9 +354,13 @@ function createInspector(objectData) {
 
     if (newInspectorPosition.top < elObjectInspectors.offsetHeight - 50) {
         newInspectorPosition.top += 10;
+    } else {
+        newInspectorPosition.top = startingInspectorPosition.top;
     }
     if (newInspectorPosition.left < elObjectInspectors.offsetWidth - 50) {
         newInspectorPosition.left += 10;
+    } else {
+        newInspectorPosition.left = startingInspectorPosition.left;
     }
 
     return elInspector;
@@ -715,12 +727,14 @@ elConnectionForm.addEventListener('submit', function (evt) {
     evt.preventDefault();
 });
 
-elUseLowercase.addEventListener('change', function () {
-    D.body.classList.toggle('use-lowercase');
+elGlobalControls.addEventListener('change', function (evt) {
+    var checkbox = evt.target;
+    if (!checkbox || checkbox.nodeName !== 'INPUT') {
+        return;
+    }
+    D.body.classList.toggle(checkbox.dataset.classToToggle);
 });
-elHideBrokenSynonyms.addEventListener('change', function () {
-    D.body.classList.toggle('hide-broken-synonyms');
-});
+
 elConnectionList.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', toggleLabelCollapsed);
 elObjectInspectors.addEventListener('click', closeInspector);
