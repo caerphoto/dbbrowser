@@ -574,10 +574,11 @@ function getCurrentSQLStatement(editor) {
     editorContent = editor.value.split('');
 
     statementEnd = editor.selectionStart;
-    statementStart = statementEnd - 1;
-    if (editorContent[statementStart] === ';') {
-        statementStart -= 1;
+    if (statementEnd >= editorContent.length ||
+        (editorContent[statementEnd] === '\n' && statementEnd > 0)) {
+        statementEnd -= 1;
     }
+    statementStart = statementEnd - 1;
 
     while (statementEnd <= editorContent.length) {
         if (editorContent[statementEnd] === "'") {
@@ -604,7 +605,9 @@ function getCurrentSQLStatement(editor) {
 
     return editorContent.slice(statementStart, statementEnd)
         .join('')
-        .replace(/^\s*/, '')
+        .replace(/^\s*/g, '')
+        .replace(/\n/g, ' ')
+        .replace(/\s\s+/g, ' ')
         .replace(/;?\s*$/, '');
 }
 
