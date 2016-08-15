@@ -68,13 +68,12 @@ html
 
     script#template-connection(type="text/mustache")
       include ./client_templates/connection.mustache
-    script#template-table-inspector(type="text/mustache")
+    script#template-inspector-table(type="text/mustache")
       include ./client_templates/inspector_table.mustache
-    script#template-result-inspector(type="text/mustache")
+    script#template-inspector-result(type="text/mustache")
       include ./client_templates/inspector_result.mustache
     script#template-sql-pane-tab(type="text/mustache")
       include ./client_templates/sql_pane_tab.mustache
 
-    script(src="/assets/javascript/mustache.min.js")
-    script(src="/assets/javascript/main.js")
+    script(src="/assets/javascript/application.js")
 

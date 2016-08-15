@@ -1,0 +1,9 @@
+{
+    "extends": "../../.jshintrc",
+    "browserify": true,
+    "esnext": false,
+    "globalstrict": true,
+    "browser": true,
+    "unused": true
+}
+

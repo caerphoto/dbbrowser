@@ -1,12 +1,15 @@
-/*global Mustache */
 'use strict';
 
 var D = document;
+
+var Mustache = require('mustache');
+var InspectorModel = require('models/inspector');
+var InspectorView = require('views/inspector');
+
 var elWorkspace = D.querySelector('#main-wrapper');
 
 var elGlobalControls = D.querySelector('#global-controls');
 
-var elConnectionName = D.querySelector('#connection-name');
 var elAddConnection = D.querySelector('#add-connection');
 var elConnectionForm = D.querySelector('#connection-list-controls');
 var elConnectionList = D.querySelector('#connection-list');
@@ -14,7 +17,7 @@ var elObjectInspectors = D.querySelector('#object-inspectors');
 var elSQLPane = D.querySelector('#sql-pane');
 var elCodeTabs = D.querySelector('#sql-pane-tabs');
 var elSizerH = D.querySelector('#object-inspectors-sizer');
-var elDebug = D.querySelector('#debug');
+//var elDebug = D.querySelector('#debug');
 
 var elStatusbar = D.querySelector('footer.status-bar');
 
@@ -78,8 +81,6 @@ var statusDialog = new Dialog('#dialog-status');
 
 var templates = {
     connection: D.querySelector('#template-connection').innerHTML,
-    tableInspector: D.querySelector('#template-table-inspector').innerHTML,
-    resultInspector: D.querySelector('#template-result-inspector').innerHTML,
     codeTab: D.querySelector('#template-sql-pane-tab').innerHTML
 };
 
@@ -118,7 +119,7 @@ function escapeForHTML(text) {
             '<': '&lt;',
             '>': '&gt;',
             '"': '&quot;',
-            "'": '&#39;'
+            '\'': '&#39;'
         }[match] || match;
     });
 }
@@ -271,13 +272,6 @@ function createCodeTab(user) {
     return tab;
 }
 
-function inArray(str, arr) {
-    var rx = new RegExp('^' + str + '$');
-    return arr.some(function (item) {
-        return rx.test(item);
-    });
-}
-
 function toggleLabelCollapsed(evt) {
     if (!/expander/.test(evt.target.className)) {
         return;
@@ -333,24 +327,18 @@ function getInspector(user, type, name) {
 }
 
 function createInspector(objectData) {
-    var elInspector = document.createElement('div');
-    var template = objectData.type === 'result' ?
-        templates.resultInspector :
-        templates.tableInspector;
+    var inspectorModel = new InspectorModel(objectData);
+    var inspector = new InspectorView({
+        model: inspectorModel,
+        top: newInspectorPosition.top + 'px',
+        left: newInspectorPosition.left + 'px',
+        zIndex: highestZIndex
+    });
 
-    objectData.isView = objectData.type === 'view';
-    objectData.isResult = objectData.type === 'result';
-
-    elInspector.className = 'object-inspector show-query-sql ' + objectData.type;
-    elInspector.id = ['inspector', objectData.user, objectData.name].join('-');
-    elInspector.dataset.user = objectData.user;
-    elInspector.style.zIndex = highestZIndex + 1;
-    elInspector.style.top = newInspectorPosition.top + 'px';
-    elInspector.style.left = newInspectorPosition.left + 'px';
+    inspector.render();
     highestZIndex += 1;
-    elInspector.innerHTML = Mustache.render(template, objectData);
 
-    bringInspectorToFront(elInspector, true);
+    bringInspectorToFront(inspector.el, true);
 
     if (newInspectorPosition.top < elObjectInspectors.offsetHeight - 50) {
         newInspectorPosition.top += 10;
@@ -363,7 +351,7 @@ function createInspector(objectData) {
         newInspectorPosition.left = startingInspectorPosition.left;
     }
 
-    return elInspector;
+    return inspector.el;
 }
 
 function getObjectNameFromLink(a) {
@@ -504,7 +492,7 @@ function dragElement(evt) {
     }
 }
 
-function stopDragging(evt) {
+function stopDragging() {
     if (!dragData.el) {
         return;
     }
@@ -581,7 +569,7 @@ function getCurrentSQLStatement(editor) {
     statementStart = statementEnd - 1;
 
     while (statementEnd <= editorContent.length) {
-        if (editorContent[statementEnd] === "'") {
+        if (editorContent[statementEnd] === '\'') {
             inQuote = !inQuote;
         }
         if (editorContent[statementEnd] === ';' && !inQuote) {
@@ -592,7 +580,7 @@ function getCurrentSQLStatement(editor) {
 
     inQuote = false;
     while (statementStart >= 0) {
-        if (editorContent[statementStart] === "'") {
+        if (editorContent[statementStart] === '\'') {
             inQuote = !inQuote;
         }
         if (editorContent[statementStart] === ';' && !inQuote) {

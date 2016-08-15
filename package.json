@@ -18,6 +18,7 @@
     "morgan": "^1.7.0",
     "oracledb": "^1.10.1",
     "pug": "^2.0.0-beta4",
-    "simple-oracledb": "^0.1.83"
+    "simple-oracledb": "^0.1.83",
+    "webpack": "^1.13.1"
   }
 }
