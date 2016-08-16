@@ -1,21 +1,37 @@
 'use strict';
-const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
     entry: './src/javascript/entry.js',
     output: {
-        path: './public/javascript',
+        path: __dirname + '/public/javascript',
         filename: 'application.js'
     },
+    module: {
+        loaders: [
+            {
+                test: /\.html$/,
+                loader: 'underscore-template-loader',
+                query: {
+                    variable: 'o'
+                }
+            }
+        ]
+    },
+    plugins: [
+        new webpack.ProvidePlugin({
+            _: 'underscore'
+        })
+    ],
     resolve: {
-        root: path.join(__dirname, 'src/javascript'),
-        modulesDirectories: ['lib'],
-        alias: {
-            underscore: 'underscore-1.8.3.min.js',
-            jquery: 'jquery-3.1.0.min.js',
-            backbone: 'backbone-1.3.3.min.js',
-            mustache: 'mustache-2.2.1.min.js'
-        }
+        root: __dirname + '/src/',
+        modulesDirectories: [
+            'javascript',
+            __dirname + '/node_modules'
+        ],
+    },
+    resolveLoader: {
+        root: __dirname + '/node_modules'
     },
     devtool: 'source-map'
 };

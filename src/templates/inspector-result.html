@@ -1,0 +1,28 @@
+<label class="inspector-title">query result</label>
+<div class="sql-controls">
+  <input type="checkbox" id="sql-toggle-<%- o.user %>-<%- o.name %>" class="sql-toggle" checked>
+  <label for="sql-toggle-<%- o.user %>-<%- o.name %>" title="Show the SQL that generated this query">SQL</label>
+</div>
+<button class="close-inspector">&times;</button>
+<button class="expander"></button>
+<table class="object-details">
+  <thead>
+    <tr>
+      <th class="detail-rowindex number">#</td>
+      <% o.columns.forEach(function (column) { %>
+        <th class="detail-col"><%- column %></th>
+      <% }) %>
+    </tr>
+  </thead>
+  <tbody>
+    <% o.rows.forEach(function (row, index) { %>
+    <tr>
+      <td class="detail-rowindex number"><%- index %></td>
+      <% row.forEach(function (column) { %>
+        <td class="detail-rowdata <%- column.type %>"><%- column.value %></td>
+      <% }) %>
+    </tr>
+    <% }) %>
+  </tbody>
+</table>
+<aside class="query-info"><code class="sql"><%- o.sql %></code></aside>

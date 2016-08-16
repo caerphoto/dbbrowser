@@ -1,49 +1,47 @@
 'use strict';
-var Backbone = require('backbone');
+var Marionette = require('backbone.marionette');
 var _ = require('underscore');
-var Mustache = require('mustache');
 
-var loadTemplate = require('load-template');
-
-module.exports = Backbone.View.extend({
+module.exports = Marionette.ItemView.extend({
     tagName: 'div',
     className: 'object-inspector show-query-sql',
 
+    ui: {
+        chkToggleSQL: '.toggle-sql',
+        btnClose: '.close-inspector',
+        btnExpander: '.expander',
+        btnShowViewSQL: '.show-view-sql'
+    },
+
     events: {
-        'click .sql-toggle': 'toggleSQL',
-        'click .close-inspector': 'close',
-        'click .expander': 'toggleExpanded',
-        'click .show-view-sql': 'showViewSQL'
+        'click @ui.chkToggleSQL': 'toggleSQL',
+        'click @ui.btnClose': 'close',
+        'click @ui.btnExpander': 'toggleExpanded',
+        'click @btnShowViewSQL': 'showViewSQL'
+    },
+
+    template: function (data) {
+        var template;
+
+        if (data.type === 'result') {
+            template = require('templates/inspector-result.html');
+        } else {
+            template = require('templates/inspector-table.html');
+        }
+
+        return template(data);
     },
 
     initialize: function (options) {
-        var type = this.model.get('type');
-        if (type === 'result') {
-            this.template = loadTemplate('inspector/result');
-        } else {
-            this.template = loadTemplate('inspector/table');
-        }
-
-        this.el.id = this.getDOMId();
-        this.$el.addClass(type);
-
+        this.$el.addClass(this.model.get('type'));
         _.extend(this.el.style, {
             zIndex: options.zIndex,
             top: options.top,
             left: options.left
         });
-    },
-
-    render: function () {
-        this.el.innerHTML = Mustache.render(this.template, this.model.toJSON());
-        return this;
-    },
-
-    getDOMId: function () {
-        return [
-            'inspector',
-            this.model.get('user'),
-            this.model.get('name')
-        ].join('-');
+        // Using attr because $.data() uses some internal jQuery data property
+        // rather than the data-* attribute, and we need that attribute so the
+        // CSS can add a pseudo-element based on it.
+        this.$el.attr('data-user', this.model.get('user'));
     }
 });

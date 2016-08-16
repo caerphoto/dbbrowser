@@ -1,0 +1,25 @@
+<label class="inspector-title"><%- o.name %></label>
+
+<button class="close-inspector">&times;</button>
+<button class="load-sample">?</button>
+<% if (o.type === 'view') { %>
+<button class="show-view-sql">SQL</button>
+<% } %>
+<button class="expander"></button>
+
+<table class="object-details">
+  <thead>
+    <tr>
+      <th class="detail-name">Name</th>
+      <th class="detail-type">Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% o.columnsData.forEach(function (columnData) { %>
+    <tr>
+      <td class="detail-name"><%- columnData.COLUMN_NAME %></td>
+      <td class="detail-type"><%- columnData.DATA_TYPE %> (<%- columnData.DATA_LENGTH %>)</td>
+    </tr>
+    <% }) %>
+  </tbody>
+</table>
