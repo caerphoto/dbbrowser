@@ -3,6 +3,7 @@
 var D = document;
 
 var Mustache = require('mustache');
+var _ = require('underscore');
 var InspectorModel = require('models/inspector');
 var InspectorView = require('views/inspector');
 
@@ -86,6 +87,8 @@ var templates = {
 
 var connections = {};
 
+window.connection_hash = connections;
+
 var dragData = {
     el: null,
     offsetX: 0,
@@ -105,24 +108,6 @@ var highestZIndex = 0;
 var inspectorPaneRect = elObjectInspectors.getBoundingClientRect();
 var workspaceRect = elWorkspace.getBoundingClientRect();
 var sizerSize = elSizerH.offsetHeight;
-
-var NULL_TEXT = '<span class="null">(null)</span>';
-
-function escapeForHTML(text) {
-    if (!text || typeof text !== 'string') {
-        return text;
-    }
-
-    return text.replace(/&<>"'/, function (match) {
-        return {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            '\'': '&#39;'
-        }[match] || match;
-    });
-}
 
 function getAncestorMatchingClass(el, className) {
     var elParent = el.parentNode;
@@ -355,7 +340,8 @@ function createInspector(objectData) {
 }
 
 function getObjectNameFromLink(a) {
-    return a.getAttribute('href').replace('#', '');
+    var href = a.getAttribute('href').replace('#', '');
+    return href.split('/')[1];
 }
 
 function loadObjectInspector(evt) {
@@ -417,7 +403,7 @@ function showSynonymTarget(evt) {
         return alertDialog.show('Synonym refers to itself.', 'info');
     }
 
-    var targetLink = connections[user].el.querySelector('[href="#' +
+    var targetLink = connections[user].el.querySelector('[href="#' + user + '/' +
         synonymTarget.name + '"]');
 
     loadObjectInspector({ target: targetLink });
@@ -640,28 +626,12 @@ function executeSQL(evt) {
         elStatusbar.innerHTML = 'Query complete.';
 
         if (xhr.status < 400) {
+            console.log('xhr success response!');
             result = JSON.parse(xhr.response);
-            if (!result.metaData || !result.rows) {
+            if (!result.columns || !result.rows) {
                 return alertDialog.show(xhr.response, 'error');
             }
-            objectData.columns = result.metaData.map(function (columnData) {
-                return columnData.name;
-            });
-            objectData.rows = result.rows.map(function (rowData, rowIndex) {
-                return {
-                    rowIndex: rowIndex + 1,
-                    rowData: objectData.columns.map(function (columnName) {
-                        var value = rowData[columnName];
-                        if (typeof value === 'object' && value !== null) {
-                            value = JSON.stringify(value);
-                        }
-                        return {
-                            value: escapeForHTML(value) || NULL_TEXT,
-                            type: typeof value
-                        };
-                    })
-                };
-            });
+            _.extend(objectData, result);
             elInspector = createInspector(objectData);
             elObjectInspectors.appendChild(elInspector);
             connections[user].inspectors[objectData.name] = {
@@ -669,6 +639,7 @@ function executeSQL(evt) {
                 object: objectData
             };
         } else {
+            console.log('xhr error response, status', xhr.status);
             alertDialog.show('Error:\n\n' + xhr.responseText, 'error');
         }
     });
@@ -736,6 +707,8 @@ elConnectionList.addEventListener('click', function (evt) {
     if (!el || el.nodeName !== 'A') {
         return;
     }
+
+    evt.preventDefault();
 
     if (el.dataset.type === 'synonym') {
         showSynonymTarget(evt);

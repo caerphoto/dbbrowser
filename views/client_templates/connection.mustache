@@ -3,14 +3,14 @@
   <label class="object-list-label tables expander collapsed">Tables ({{ tables.length }})</label>
   <ul class="connection-objects tables">
     {{# tables }}
-      <li><a href="#{{ . }}" data-type="table">{{ . }}</a></li>
+      <li><a href="#{{ user }}/{{ . }}" data-type="table">{{ . }}</a></li>
     {{/ tables }}
   </ul>
 
   <label class="object-list-label views expander collapsed">Views ({{ views.length }})</label>
   <ul class="connection-objects views">
     {{# views }}
-      <li><a href="#{{ . }}" data-type="view">{{ . }}</a></li>
+      <li><a href="#{{ user }}/{{ . }}" data-type="view">{{ . }}</a></li>
     {{/ views }}
   </ul>
 
@@ -21,7 +21,7 @@
     {{/ hasOnlyBroken }}
     {{# synonyms }}
     <li {{# broken }} class="broken {{# cyclic }}cyclic{{/ cyclic }}" {{/ broken }}>
-      <a href="#{{ TABLE_NAME }}" title="target: {{ TABLE_NAME }}" data-type="synonym" data-target="{{ TABLE_NAME }}">{{ SYNONYM_NAME }}</a>
+      <a href="#{{ user }}/{{ TABLE_NAME }}" title="target: {{ TABLE_NAME }}" data-type="synonym" data-target="{{ TABLE_NAME }}">{{ SYNONYM_NAME }}</a>
     </li>
     {{/ synonyms }}
   </ul>

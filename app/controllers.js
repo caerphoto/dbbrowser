@@ -7,6 +7,11 @@ const dbParams = {
     connectString: process.env.DB_CONNECTION
 };
 
+if (!dbParams.connectString) {
+    console.error('Error: DB_CONNECTION environment variable not set.');
+    process.exit(1);
+}
+
 db.outFormat = db.OBJECT;
 db.maxRows = 1000;
 db.extendedMetaData = true;
@@ -18,7 +23,7 @@ const QUERIES = {
     getDataSample: 'select * from :object where rownum < 50',
     describe: 'select column_id, column_name, data_type, data_length from user_tab_columns where table_name = :objectName order by column_id',
     dropTemp: 'DROP TABLE tmp_view_text',
-    createTemp: "CREATE TABLE tmp_view_text AS (SELECT TO_LOB(user_views.text) text FROM user_views WHERE view_name = '###')",
+    createTemp: 'CREATE TABLE tmp_view_text AS (SELECT TO_LOB(user_views.text) text FROM user_views WHERE view_name = \'###\')',
     getViewText: 'SELECT text FROM tmp_view_text'
 };
 
@@ -230,7 +235,6 @@ function fetchClobs(queryResult, callback) {
     const meta = queryResult.metaData;
 
     const fetchedRows = [];
-    const firstRow = queryResult.rows[0];
     const numClobColumns = meta.reduce(function (count, colInfo) {
         if (colInfo.fetchType === db.CLOB) {
             count += 1;
@@ -268,7 +272,41 @@ function fetchClobs(queryResult, callback) {
 
 }
 
-exports.postSQL = function (req, res, next) {
+const dataTypeMap = {
+    2001: 'string',
+    2002: 'number',
+    2003: 'date',
+    2004: 'cursor',
+    2005: 'buffer',
+    2006: 'clob',
+    2007: 'blob'
+};
+
+function transformQueryResult(data) {
+    const columnTypes = data.metaData.reduce(function (obj, column) {
+        obj[column.name] = dataTypeMap[column.fetchType];
+        return obj;
+    }, {});
+
+    return {
+        columns: data.metaData.map(function (column) {
+            return {
+                name: column.name,
+                type: columnTypes[column.name]
+            };
+        }),
+        rows: data.rows.map(function (row) {
+            return data.metaData.map(function (column) {
+                return {
+                    type: columnTypes[column.name],
+                    value: row[column.name]
+                };
+            });
+        })
+    };
+}
+
+exports.postSQL = function (req, res) {
     let query = req.body;
 
     dbParams.user = req.params.user;
@@ -291,7 +329,7 @@ exports.postSQL = function (req, res, next) {
                     console.error('Error from fetchClobs:', err3);
                     return res.status(500).send(err3.message);
                 }
-                res.json(data);
+                res.json(transformQueryResult(data));
             });
         });
     });

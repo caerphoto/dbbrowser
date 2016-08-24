@@ -1,9 +1,9 @@
 <label class="inspector-title"><%- o.name %></label>
 
-<button class="close-inspector">&times;</button>
+<button class="close-inspector" data-user="<%- o.user %>" data-name="<%- o.name %>">&times;</button>
 <button class="load-sample">?</button>
 <% if (o.type === 'view') { %>
-<button class="show-view-sql">SQL</button>
+<button class="show-view-sql" data-user="<%- o.user %>" data-name="<%- o.name %>">SQL</button>
 <% } %>
 <button class="expander"></button>
 

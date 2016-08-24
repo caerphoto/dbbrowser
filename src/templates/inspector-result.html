@@ -3,14 +3,14 @@
   <input type="checkbox" id="sql-toggle-<%- o.user %>-<%- o.name %>" class="sql-toggle" checked>
   <label for="sql-toggle-<%- o.user %>-<%- o.name %>" title="Show the SQL that generated this query">SQL</label>
 </div>
-<button class="close-inspector">&times;</button>
+<button class="close-inspector" data-user="<%- o.user %>" data-name="<%- o.name %>">&times;</button>
 <button class="expander"></button>
 <table class="object-details">
   <thead>
     <tr>
       <th class="detail-rowindex number">#</td>
       <% o.columns.forEach(function (column) { %>
-        <th class="detail-col"><%- column %></th>
+        <th class="detail-col <%- column.type %>"><%- column.name %></th>
       <% }) %>
     </tr>
   </thead>
@@ -18,8 +18,13 @@
     <% o.rows.forEach(function (row, index) { %>
     <tr>
       <td class="detail-rowindex number"><%- index %></td>
+      <% console.log(row) %>
       <% row.forEach(function (column) { %>
-        <td class="detail-rowdata <%- column.type %>"><%- column.value %></td>
+        <% if (column.value === null) { %>
+          <td class="detail-rowdata null">(null)</td>
+        <% } else { %>
+          <td class="detail-rowdata <%- column.type %>"><%- column.value %></td>
+        <% } %>
       <% }) %>
     </tr>
     <% }) %>
