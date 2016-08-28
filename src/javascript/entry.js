@@ -336,6 +336,10 @@ function createInspector(objectData) {
         newInspectorPosition.left = startingInspectorPosition.left;
     }
 
+    setTimeout(function () {
+        inspector.el.classList.add('ready');
+    }, 0);
+
     return inspector.el;
 }
 
@@ -626,7 +630,6 @@ function executeSQL(evt) {
         elStatusbar.innerHTML = 'Query complete.';
 
         if (xhr.status < 400) {
-            console.log('xhr success response!');
             result = JSON.parse(xhr.response);
             if (!result.columns || !result.rows) {
                 return alertDialog.show(xhr.response, 'error');
@@ -639,7 +642,6 @@ function executeSQL(evt) {
                 object: objectData
             };
         } else {
-            console.log('xhr error response, status', xhr.status);
             alertDialog.show('Error:\n\n' + xhr.responseText, 'error');
         }
     });

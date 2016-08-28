@@ -333,15 +333,20 @@ label + input {
 /* ================= Inspectors =================== */
 
 .object-inspector {
-    border: 1px solid #aaa;
     position: absolute;
     box-sizing: border-box;
     background-color: #fff;
     box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1);
     top: 2em;
     left: 2em;
-    transition: border-color 0.4s ease, color 0.4s ease;
     overflow: visible;
+
+    border: 1px solid #aaa;
+    opacity: 0; /* is set to 1 with the 'ready' class */
+    transition:
+        border-color 0.4s ease,
+        color 0.4s ease,
+        opacity 0.4s ease;
 }
 
 .object-inspector::before {
@@ -358,6 +363,10 @@ label + input {
 .object-inspector.pinged {
     border-color: #00f;
     color: #00f;
+}
+
+.object-inspector.ready {
+    opacity: 1;
 }
 
 .object-inspector .inspector-title {

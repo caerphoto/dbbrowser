@@ -18,7 +18,6 @@
     <% o.rows.forEach(function (row, index) { %>
     <tr>
       <td class="detail-rowindex number"><%- index %></td>
-      <% console.log(row) %>
       <% row.forEach(function (column) { %>
         <% if (column.value === null) { %>
           <td class="detail-rowdata null">(null)</td>
