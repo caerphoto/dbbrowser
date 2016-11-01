@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('oracledb');
+const chalk = require('chalk');
 
 const dbParams = {
     password: '*',
@@ -283,6 +284,9 @@ const dataTypeMap = {
 };
 
 function transformQueryResult(data) {
+    if (!data) {
+        return null;
+    }
     const columnTypes = data.metaData.reduce(function (obj, column) {
         obj[column.name] = dataTypeMap[column.fetchType];
         return obj;
@@ -308,6 +312,9 @@ function transformQueryResult(data) {
 
 exports.postSQL = function (req, res) {
     let query = req.body;
+
+    console.log('Running SQL:');
+    console.log(chalk.blue(query));
 
     dbParams.user = req.params.user;
     db.getConnection(dbParams, function (err1, connection) {
