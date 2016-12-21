@@ -23,7 +23,7 @@
     "jquery": "^3.1.0",
     "morgan": "^1.7.0",
     "mustache": "^2.2.1",
-    "oracledb": "^1.10.1",
+    "oracledb": "^1.12.0",
     "pug": "^2.0.0-beta4",
     "simple-oracledb": "^0.1.83",
     "underscore": "^1.8.3",
