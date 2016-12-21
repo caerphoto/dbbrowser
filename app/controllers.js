@@ -214,7 +214,7 @@ function readColumn(row, colInfo, callback) {
         return callback(null, item);
     }
 
-    item.setEncoding('utf8');
+    // item.setEncoding('utf8');
     item.on('data', function (chunk) {
         text += chunk;
     });
@@ -224,7 +224,9 @@ function readColumn(row, colInfo, callback) {
     });
 
     item.on('error', function (err) {
-        callback(err);
+        console.log(err);
+        callback(null, null);
+        // callback(err);
     });
 }
 
@@ -235,6 +237,7 @@ function fetchClobs(queryResult, callback) {
 
     const meta = queryResult.metaData;
 
+    let failed = false;
     const fetchedRows = [];
     const numClobColumns = meta.reduce(function (count, colInfo) {
         if (colInfo.fetchType === db.CLOB) {
@@ -260,7 +263,7 @@ function fetchClobs(queryResult, callback) {
                 }
                 fetchedRows[index][colInfo.name] = data;
                 fetchedItems += 1;
-                if (fetchedItems === totalItems) {
+                if (fetchedItems === totalItems && !failed) {
                     callback(null, {
                         metaData: meta,
                         rows: fetchedRows
@@ -286,6 +289,9 @@ const dataTypeMap = {
 function transformQueryResult(data) {
     if (!data) {
         return null;
+    }
+    if (!data.metaData) {
+        return data;
     }
     const columnTypes = data.metaData.reduce(function (obj, column) {
         obj[column.name] = dataTypeMap[column.fetchType];
