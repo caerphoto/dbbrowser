@@ -17,6 +17,8 @@ db.outFormat = db.OBJECT;
 db.maxRows = 1000;
 db.extendedMetaData = true;
 
+db.fetchAsString = [ db.CLOB ];
+
 const QUERIES = {
     getTables: 'select table_name from user_tables order by table_name',
     getViews: 'select view_name from user_views order by view_name',
@@ -165,20 +167,20 @@ exports.getViewText = function (req, res) {
             console.error(err.message);
             return res.status(500).send(err.message);
         }
-        console.log('connected');
         const query = QUERIES.createTemp.replace('###', viewName);
         conn.execute(query, function (err) {
             if (err) {
-                conn.close();
-                console.error(err.message);
-                console.log(query);
-                return res.status(500).send(err.message);
+                // ORA-00955 means table already exists, so we can carry on as
+                // intended.
+                if (!/ORA-00955/.test(err.message)) {
+                    conn.close();
+                    console.error(err.message);
+                    console.log(query);
+                    return res.status(500).send(err.message);
+                }
             }
             console.log('tmp_view_text created');
             conn.execute(QUERIES.getViewText, function (err, result) {
-                var buf;
-                var text = '';
-
                 if (err || result.rows.length === 0) {
                     conn.close();
                     console.error(err.message);
@@ -187,94 +189,14 @@ exports.getViewText = function (req, res) {
 
                 console.log('view text selected');
 
-                buf = result.rows[0].TEXT;
-                buf.setEncoding('utf8');
-                buf.on('end', function () {
-                    conn.execute(QUERIES.dropTemp);
+                conn.execute(QUERIES.dropTemp, function () {
                     conn.close();
-                    res.json(text);
                 });
-                buf.on('data', function (chunk) {
-                    text += chunk;
-                });
+                res.json(result.rows[0].TEXT);
             });
         });
     });
 };
-
-function readColumn(row, colInfo, callback) {
-    let text = '';
-    const item = row[colInfo.name];
-
-    if (colInfo.fetchType !== db.CLOB) {
-        return callback(null, item);
-    }
-
-    if (!item) {
-        return callback(null, item);
-    }
-
-    // item.setEncoding('utf8');
-    item.on('data', function (chunk) {
-        text += chunk;
-    });
-    item.on('end', function () {
-        item.close();
-        callback(null, text);
-    });
-
-    item.on('error', function (err) {
-        console.log(err);
-        callback(null, null);
-        // callback(err);
-    });
-}
-
-function fetchClobs(queryResult, callback) {
-    if (!queryResult || !queryResult.rows || queryResult.rows.length === 0) {
-        return callback(null, queryResult);
-    }
-
-    const meta = queryResult.metaData;
-
-    let failed = false;
-    const fetchedRows = [];
-    const numClobColumns = meta.reduce(function (count, colInfo) {
-        if (colInfo.fetchType === db.CLOB) {
-            count += 1;
-        }
-        return count;
-    }, 0);
-
-    const totalItems = queryResult.rows.length * meta.length;
-    let fetchedItems = 0;
-
-    if (numClobColumns === 0) {
-        return callback(null, queryResult);
-    }
-
-    queryResult.rows.forEach(function (row, index) {
-        fetchedRows[index] = {};
-        meta.forEach(function (colInfo) {
-            return readColumn(row, colInfo, function (err, data) {
-                if (err) {
-                    callback(err);
-                    return false;
-                }
-                fetchedRows[index][colInfo.name] = data;
-                fetchedItems += 1;
-                if (fetchedItems === totalItems && !failed) {
-                    callback(null, {
-                        metaData: meta,
-                        rows: fetchedRows
-                    });
-                }
-                return true;
-            });
-        });
-    });
-
-}
 
 const dataTypeMap = {
     2001: 'string',
@@ -336,14 +258,7 @@ exports.postSQL = function (req, res) {
                 return res.status(500).send(err2.message);
             }
 
-            fetchClobs(result, function (err3, data) {
-                connection.close();
-                if (err3) {
-                    console.error('Error from fetchClobs:', err3);
-                    return res.status(500).send(err3.message);
-                }
-                res.json(transformQueryResult(data));
-            });
+            res.json(transformQueryResult(result));
         });
     });
 };

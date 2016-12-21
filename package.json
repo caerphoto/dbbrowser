@@ -25,7 +25,6 @@
     "mustache": "^2.2.1",
     "oracledb": "^1.12.0",
     "pug": "^2.0.0-beta4",
-    "simple-oracledb": "^0.1.83",
     "underscore": "^1.8.3",
     "underscore-template-loader": "^0.7.3",
     "webpack": "^1.13.1"
