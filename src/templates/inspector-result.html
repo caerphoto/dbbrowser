@@ -17,7 +17,7 @@
   <tbody>
     <% o.rows.forEach(function (row, index) { %>
     <tr>
-      <td class="detail-rowindex number"><%- index %></td>
+      <td class="detail-rowindex number"><%- index + 1 %></td>
       <% row.forEach(function (column) { %>
         <% if (column.value === null) { %>
           <td class="detail-rowdata null">(null)</td>
