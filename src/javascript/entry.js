@@ -29,15 +29,23 @@ var Dialog = function (selector) {
     this.el.addEventListener('submit', this.ok.bind(this));
     this.elInput = this.el.querySelector('input');
     this.elMessage = this.el.querySelector('.message');
+    this.elOkButton = this.el.querySelector('button.ok');
+    if (this.elInput) {
+        this.el.classList.add('input');
+    }
 };
 
 Dialog.prototype = {
     show: function (message, callbackOrType) {
-        this.elMessage.innerHTML = message;
+        var messageText = document.createTextNode(message);
+        this.elMessage.innerHTML = '';
+        this.elMessage.appendChild(messageText);
         this.el.classList.add('active');
         if (this.elInput) {
             this.elInput.value = '';
             this.elInput.focus();
+        } else if (this.elOkButton) {
+            this.elOkButton.focus();
         }
         if (!callbackOrType) {
             return;

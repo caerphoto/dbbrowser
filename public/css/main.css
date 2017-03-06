@@ -611,7 +611,6 @@ label + input {
     position: absolute;
     box-sizing: border-box;
     top: 25%;
-    height: 11em;
     margin-top: -5.5em;
     left: 50%;
     width: 400px;
@@ -628,7 +627,15 @@ label + input {
 }
 
 .dialog .message {
-    margin-bottom: 1em;
+    margin-bottom: 3em;
+}
+
+.dialog.input .message {
+    margin-bottom: 0.5em;
+}
+
+.dialog form {
+    margin-bottom: 3em;
 }
 
 .dialog input {
