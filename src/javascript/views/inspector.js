@@ -24,7 +24,12 @@ module.exports = Marionette.ItemView.extend({
         var template;
 
         if (data.type === 'result') {
-            template = require('templates/inspector-result.html');
+            if (data.rows.length === 1) {
+                data.row = data.rows[0];
+                template = require('templates/inspector-single-result.html');
+            } else {
+                template = require('templates/inspector-result.html');
+            }
         } else {
             template = require('templates/inspector-table.html');
         }

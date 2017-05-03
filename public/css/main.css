@@ -201,6 +201,11 @@ footer.status-bar {
     overflow: auto;
 }
 
+.scroll-area-creator {
+    width: 2000px;
+    height: 2000px;
+}
+
 #sql-pane {
     top: 40.5em;
     left: 22em;
@@ -438,6 +443,7 @@ label + input {
 .use-lowercase .inspector-title,
 .use-lowercase .result .object-details th,
 .use-lowercase .table .object-details td,
+.use-lowercase .object-details.single-result td.column-name,
 .use-lowercase .view .object-details td {
     text-transform: lowercase;
 }
@@ -468,6 +474,11 @@ label + input {
     white-space: pre;
     max-width: 30em;
     overflow: auto;
+}
+
+.object-details.single-result td {
+    max-width: 40em;
+    white-space: pre-wrap;
 }
 
 .object-details .number {
