@@ -485,6 +485,10 @@ label + input {
     text-align: right;
 }
 
+.object-details.single-result .number {
+    text-align: left;
+}
+
 .object-details .null {
     opacity: 0.4;
 }
